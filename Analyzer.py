@@ -52,6 +52,8 @@ class Application(Frame):
         '''
         Read through a list of files to get the bam files and store them in namelist.txt
         '''
+
+        # Removed global variable in this file
         geneloc=E1.get()
         
         oldstdout = sys.stdout
