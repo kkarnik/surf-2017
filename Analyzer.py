@@ -102,12 +102,34 @@ class Application(Frame):
     @profile # For use with memory profiler (can be installed via pip)
     def outgenerator(self):
         '''
-        Generates .out files by calling a subprocess on the UNIX command line
+        Generates .out files by calling a subprocess on the UNIX command line that uses the Python script v12-q50.py
         '''
-        for line in open('namelist.txt','r'):
+
+        # Previous version of the function was this:
+        #for line in open('namelist.txt','r'):
+        #    line2=line.replace("\n","")
+        #    line3=line2.replace(" ",line2)
+        #    subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
+
+        lineList = open('namelist.txt', 'r')
+
+        # Create the pool for the threads
+        pool = Pool(2)
+
+        def out_loop_operation(line):
+            '''
+            Function that represents the operation done in the loop in the outgenerator function
+            '''
             line2=line.replace("\n","")
             line3=line2.replace(" ",line2)
             subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
+
+        # Make the threads run in parallel
+        for line in lineList:
+            pool.apply_async(out_loop_operation, (line,))
+
+        pool.close()
+        pool.join()
 
     @profile # For use with memory profiler (can be installed via pip)
     def agenerator(self):
