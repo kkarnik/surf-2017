@@ -15,11 +15,13 @@ import subprocess
 #FH
 
 class Application(Frame):
+    @profile # For use with memory profiler (can be installed via pip)
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
-
+        
+    @profile # For use with memory profiler (can be installed via pip)
     def createWidgets(self):
         self.genbai = Button(self, text="Generate .bai", command=self.baigenerator)
         self.genbai.pack(side=TOP)
@@ -35,6 +37,7 @@ class Application(Frame):
 
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
+    @profile # For use with memory profiler (can be installed via pip)
     def combinefunctions(self):
         '''
         Combines the functions that generate and modify the files in to a single function which can be invoked when
@@ -48,6 +51,7 @@ class Application(Frame):
         self.largestfile()
         self.zeroscreator()
 
+    @profile # For use with memory profiler (can be installed via pip)
     def namereader(self):
         '''
         Read through a list of files to get the bam files and store them in namelist.txt
@@ -75,6 +79,7 @@ class Application(Frame):
 
         return geneloc
 
+    @profile # For use with memory profiler (can be installed via pip)
     def baigenerator(self):
         '''
         Generates .bai files by calling a subprocess which calls the samtools index command on the UNIX command line
@@ -84,6 +89,7 @@ class Application(Frame):
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools index '+line3], shell=True)
 
+    @profile # For use with memory profiler (can be installed via pip)
     def pupgenerator(self, geneloc):
         '''
         Generates .pup files by calling a subprocess which calls the samtools mpileup command on the UNIX command line
@@ -93,6 +99,7 @@ class Application(Frame):
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools mpileup -r '+geneloc+' '+line3+' > '+line3+'.pup'], shell=True)
 
+    @profile # For use with memory profiler (can be installed via pip)
     def outgenerator(self):
         '''
         Generates .out files by calling a subprocess on the UNIX command line
@@ -102,6 +109,7 @@ class Application(Frame):
             line3=line2.replace(" ",line2)
             subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
 
+    @profile # For use with memory profiler (can be installed via pip)
     def agenerator(self):
         '''
         Generates .a files by calling a subprocess which uses the cut command on the UNIX command line
@@ -112,6 +120,7 @@ class Application(Frame):
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
 
+    @profile # For use with memory profiler (can be installed via pip)
     def largestfile(self):
         '''
         Finds the largest file in the set of .a files
@@ -129,6 +138,7 @@ class Application(Frame):
                         sofar = size
                         largestname = item
 
+    @profile # For use with memory profiler (can be installed via pip)
     def zeroscreator(self):
         '''
         Populates the mergez.txt file initially with zeroes
