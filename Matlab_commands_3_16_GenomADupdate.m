@@ -74,10 +74,13 @@ end;
 s=2;
 % s = the number of sequence files being analyzed
 
-
-fileID = fopen('mergez.txt','r');
-
-%for x=1:s;
+% Optimization: When the mergez array is traversed from 1 to s, then the 
+% variable for the array appears to change size on every loop iteration. To 
+% avoid this, I changed the order of traversal of the mergez array so that
+% the array grows along the last dimension. So, the first time the mergez
+% array is assigned a value, it is assigned to the element at position s
+% and thus, Matlab allocates space for all of the s elements of the mergez
+% array. 
 for x=s:-1:1;
     mergez(:,(x-1)*13+12)=0;
     mergez(:,(x-1)*13+13)=0;
