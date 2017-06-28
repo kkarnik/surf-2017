@@ -48,7 +48,6 @@ class Application(Frame):
         self.pupgenerator(geneloc)
         self.outgenerator()
         self.agenerator()
-        self.largestfile()
         self.zeroscreator()
 
     @profile # For use with memory profiler (can be installed via pip)
@@ -141,24 +140,6 @@ class Application(Frame):
             line2 = line.replace("\n","")
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
-
-    @profile # For use with memory profiler (can be installed via pip)
-    def largestfile(self):
-        '''
-        Finds the largest file in the set of .a files
-        '''
-        objects = os.listdir('.')
-
-        sofar = 0
-        global largestname
-        largestname = ""
-
-        for item in objects:
-            if item.endswith('.a'):
-                size = os.path.getsize(item)
-                if size > sofar:
-                        sofar = size
-                        largestname = item
 
     @profile # For use with memory profiler (can be installed via pip)
     def zeroscreator(self):
