@@ -85,19 +85,16 @@ for string in string_list:
 							i_ct = i_ct + 1
 						elif x == "n":
 							i_ct = i_ct + 1
-						else:
-							lalala = 0
+
 						plusminus_val = plusminus_val - 1
 					else:
 						plusminus_val = plusminus_val - 1
-				elif x == "$":
-					lalala = 0
+
 				else:
 					item_array.append(x)
 			elif tab_count == 5:
 				quality_array.append(x)
-			else:
-				lalala = 0
+
 		length_count = 0
 		if len(item_array) == len(quality_array):
 			for x in item_array:
@@ -124,9 +121,8 @@ for string in string_list:
 						t_ct = t_ct + 1
 					elif x == "n":
 						n_ct = n_ct + 1
-					else:
-						lalala = 0
 				length_count = length_count + 1
+				
 		else:
 			for x in item_array:
 				if x == "A":
@@ -149,15 +145,13 @@ for string in string_list:
 					t_ct = t_ct + 1
 				elif x == "n":
 					n_ct = n_ct + 1
-				else:
-					lalala = 0
 				length_count = length_count + 1
+				
 		newfile.write("\n" + str(line_num) + "\t" + pre_string + "\t" + str(A_ct) + "\t" + str(G_ct) + "\t" + str(
 			C_ct) + "\t" + str(T_ct) + "\t" + str(N_ct) + "\t" + str(a_ct) + "\t" + str(g_ct) + "\t" + str(
 			c_ct) + "\t" + str(t_ct) + "\t" + str(n_ct) + "\t" + str(plusminus_count) + "\t" + str(I_ct) + "\t" + str(
 			i_ct))
-	else:
-		lalala = 0
+
 newfile.write("\n")
 
 
