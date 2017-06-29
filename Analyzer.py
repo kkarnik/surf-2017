@@ -20,7 +20,7 @@ class Application(Frame):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
-        
+
     @profile # For use with memory profiler (can be installed via pip)
     def createWidgets(self):
         self.genbai = Button(self, text="Generate .bai", command=self.baigenerator)
@@ -35,7 +35,15 @@ class Application(Frame):
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
+        self.matlab = Button(self, text="Run matlab script", command=self.runmatlab);
+        self.matlab.pack();
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
+
+    def runmatlab(self):
+        '''
+        Runs Matlab_commands_3_16_GenomADupdate.m script
+        '''
+        subprocess.call(['matlab -nojvm -r Matlab_commands_3_16_GenomADupdate'], shell=True)
 
     @profile # For use with memory profiler (can be installed via pip)
     def combinefunctions(self):
@@ -58,7 +66,7 @@ class Application(Frame):
 
         # Removed global variable in this file
         geneloc=E1.get()
-        
+
         oldstdout = sys.stdout
         f = open('namelist.txt','w')
         sys.stdout = f
@@ -169,4 +177,3 @@ app.master.title("Analyzer")
 
 
 app.mainloop()
-
