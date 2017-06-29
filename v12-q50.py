@@ -1,14 +1,18 @@
 import string
 import sys
 
+# Open the file whose name is given in the first argument
 openfile = file(sys.argv[1])
+
+# The secpmd argument is the name of the file to which we are writing to
 newfile = open(sys.argv[2], 'w')
 
 quality_level = 50  # EDIT THIS FOR QUALITY LEVEL DESIRED
 
-num_list = "0123456789"
-
+# Get the text in the first file
 whole_string = openfile.read()
+
+# Split the text into lines which each contain strings
 string_list = whole_string.split("\n");
 
 # newfile.write("Line #\tchr\tnt\tbase\t#reads\tA\tG\tC\tT\tN\ta\tg\tc\tt\tn\t+/-\tI\ti")
@@ -18,6 +22,7 @@ line_num = 0
 import re
 
 for string in string_list:
+    # Get the number of digits in the string, such that if there are no digits in the string, digstr=1
 	if re.sub("\D", "", string[0:11]) == "":
 		digstr = 1
 	else:
@@ -122,7 +127,7 @@ for string in string_list:
 					elif x == "n":
 						n_ct = n_ct + 1
 				length_count = length_count + 1
-				
+
 		else:
 			for x in item_array:
 				if x == "A":
@@ -146,14 +151,10 @@ for string in string_list:
 				elif x == "n":
 					n_ct = n_ct + 1
 				length_count = length_count + 1
-				
+
 		newfile.write("\n" + str(line_num) + "\t" + pre_string + "\t" + str(A_ct) + "\t" + str(G_ct) + "\t" + str(
 			C_ct) + "\t" + str(T_ct) + "\t" + str(N_ct) + "\t" + str(a_ct) + "\t" + str(g_ct) + "\t" + str(
 			c_ct) + "\t" + str(t_ct) + "\t" + str(n_ct) + "\t" + str(plusminus_count) + "\t" + str(I_ct) + "\t" + str(
 			i_ct))
 
 newfile.write("\n")
-
-
-
-

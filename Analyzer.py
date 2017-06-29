@@ -35,8 +35,8 @@ class Application(Frame):
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
-        self.matlab = Button(self, text="Run matlab script", command=self.runmatlab);
-        self.matlab.pack();
+        self.matlab = Button(self, text="Run matlab script", command=self.runmatlab)
+        self.matlab.pack()
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
     def runmatlab(self):
