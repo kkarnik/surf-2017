@@ -2,6 +2,15 @@
 more on
 format shortG
 
+% import table in mergez.txt file as a variable called mergez
+
+mergez = dlmread('mergez.txt');
+
+% import the variable values that were stored in the
+% matlab_input_genomeADcoord.mat file
+
+load('matlab_input_genomeADcoord.mat');
+
 %need to generate refnt file for TSC1, TSC2, done manually.
 
 refnt=zeros(137002,2);
