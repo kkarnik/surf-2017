@@ -242,10 +242,8 @@ lenRef = length(ntVals);
 for i=1:lenRef;
     if(ntVals(i) == 2);
         ntVals(i) = 3;
-    else
-        if(ntVals(i) == 3);
+    elseif(ntVals(i) == 3);
         ntVals(i) = 2;
-        end;    
     end;
 end;
 
