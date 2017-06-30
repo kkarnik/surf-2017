@@ -205,6 +205,57 @@ mergezb=workaa;
 % h=h-1
 h=size(mergezb,1);
 
+% Looks at chromosome and nucleotide posn, looks for variant reads greater
+% than 1 percent, for any of the samples in the row, flag as variant calls
+% (sites of possibly important nt vairation), looks for most common
+% nucleotide -> refnt, second most common is variant
+
+% Rather than figure out line by line, import reference human genome seq
+% and determine nt posn line by line, how many variants, off by how much
+% from the reference
+
+% initindex.txt stores the initial index, and this file was created in
+% the python analyzer.py script
+initIndex = dlmread('initindex.txt');
+
+filetext = fileread('genome.txt');
+
+result = regexprep(filetext, '\s+','');
+
+ntVals = nt2int(result);
+
+% A = 1
+% C = 2
+% G = 3
+% T = 4
+ntVals = double(ntVals);
+
+lenRef = length(ntVals);
+
+% Change it to:
+% A = 1
+% G = 2
+% C = 3
+% T = 4
+% because later, we have that the columns for the counts of A, G, C, T
+% are in that order
+for i=1:lenRef;
+    if(ntVals(i) == 2);
+        ntVals(i) = 3;
+    else
+        if(ntVals(i) == 3);
+        ntVals(i) = 2;
+        end;    
+    end;
+end;
+
+refSeq = zeros(lenRef, 2);
+
+for i=1:lenRef;
+    refSeq(i, 1) = initIndex + i - 1;
+    refSeq(i, 2) = ntVals(i);
+end;
+
 %% Section workb                                                                                                                  
 %Now modify to calculate call totals
 workb=zeros(h,s*20);

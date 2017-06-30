@@ -48,16 +48,55 @@ class Application(Frame):
     @profile # For use with memory profiler (can be installed via pip)
     def combinefunctions(self):
         '''
-        Combines the functions that generate and modify the files in to a single function which can be invoked when
-        the "Begin Analysis" button is pressed
+        Combines the functions that generate and modify the files in to a
+        single function which can be invoked when the "Begin Analysis" button
+        is pressed
         '''
 
         geneloc = self.namereader()
+
+        if(not self.isvalidregion(geneloc)):
+            print('Error, region is not valid\n')
+            exit()
+        else:
+            print('Valid region.\n')
+
         self.pupgenerator(geneloc)
         self.outgenerator()
         self.agenerator()
         self.zeroscreator()
 
+    def isvalidregion(self, geneloc):
+        '''
+        Compares the user input region values with the indices of the human genome reference values and makes sure
+        that the start and end index are plus or minus 10000 of the reference
+        '''
+        i = geneloc.find(':') + 1
+        j = geneloc.find('-')
+
+        inputLen = len(geneloc)
+
+        inputStart = int(geneloc[i : j])
+
+        inputEnd = int(geneloc[j+1 : inputLen])
+
+        refSeqFile = open("genomewithinst.txt", "r")
+
+        fileData = refSeqFile.read()
+
+        indexbegin = fileData.find(':') + 1
+        indexmid = fileData.find('-')
+        indexend = fileData.find('\'') - 2
+
+        refStart = int(fileData[indexbegin : indexmid])
+        refEnd = int(fileData[indexmid+1 : indexend])
+
+        text_file = open("initindex.txt", "w")
+        text_file.write("%d" % refStart)
+        text_file.close()
+
+        return((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
+        
     @profile # For use with memory profiler (can be installed via pip)
     def namereader(self):
         '''
