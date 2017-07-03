@@ -16,7 +16,7 @@ load('matlab_input_genomeADcoord.mat');
 refnt=zeros(137002,2);
 refnt(1:75001,1)=9;
 refnt(75002:137002,1)=16;
-for i=1:75001;            
+for i=1:75001;
     refnt(i,2)=135756000+i-1;
 end;
 for i=75002:137002;
@@ -26,56 +26,56 @@ end;
 % %FLCN chr17:17113000-17143000
 % refnt=zeros(30000,2);
 % refnt(1:30000,1)=17;
-% for i=1:30000;            
+% for i=1:30000;
 %     refnt(i,2)=17113000+i-1;
 % end;
 
 % %PIK3CA
 % refnt=zeros(91979,2);
 % refnt(1:91979,1)=3;
-% for i=1:91979;            
+% for i=1:91979;
 %     refnt(i,2)=178865902+i-1;
 % end;
-% 
+%
 % %MTOR
 % refnt=zeros(155972,2);
 % refnt(1:155972,1)=1;
-% for i=1:155972;            
+% for i=1:155972;
 %     refnt(i,2)=11166592+i-1;
 % end;
-% 
+%
 % %AKT1
 % refnt=zeros(26402,2);
 % refnt(1:26402,1)=14;
-% for i=1:26402;            
+% for i=1:26402;
 %     refnt(i,2)=105235686+i-1;
 % end;
-% 
+%
 % %AKT2
 % refnt=zeros(55219,2);
 % refnt(1:55219,1)=19;
-% for i=1:55219;            
+% for i=1:55219;
 %     refnt(i,2)=40736224+i-1;
 % end;
-% 
+%
 % % AKT3
 % refnt=zeros(362846,2);
 % refnt(1:362846,1)=1;
-% for i=1:362846;            
+% for i=1:362846;
 %     refnt(i,2)=243651535+i-1;
 % end;
-% 
+%
 % % PTEN
 % refnt=zeros(108817,2);
 % refnt(1:108817,1)=10;
-% for i=1:108817;            
+% for i=1:108817;
 %     refnt(i,2)=89622870+i-1;
 % end;
 
 % %DEPDC5
 % refnt=zeros(153083,2);
 % refnt(1:153083,1)=22;
-% for i=1:153083;            
+% for i=1:153083;
 %     refnt(i,2)=32149937+i-1;
 % end;
 %% Section mergez-mergeza
@@ -83,13 +83,13 @@ end;
 s=2;
 % s = the number of sequence files being analyzed
 
-% Optimization: When the mergez array is traversed from 1 to s, then the 
-% variable for the array appears to change size on every loop iteration. To 
+% Optimization: When the mergez array is traversed from 1 to s, then the
+% variable for the array appears to change size on every loop iteration. To
 % avoid this, I changed the order of traversal of the mergez array so that
 % the array grows along the last dimension. So, the first time the mergez
 % array is assigned a value, it is assigned to the element at position s
 % and thus, Matlab allocates space for all of the s elements of the mergez
-% array. 
+% array.
 for x=s:-1:1;
     mergez(:,(x-1)*13+12)=0;
     mergez(:,(x-1)*13+13)=0;
@@ -108,7 +108,7 @@ end;
 mergeza=zeros(size(refnt,1),s*13);
 for h=1:s;
     j=1;
-    for i=1:size(refnt,1); 
+    for i=1:size(refnt,1);
         if refnt(i,1)==mergez(j,(h-1)*13+1) && refnt(i,2)==mergez(j,(h-1)*13+2);
             for k=1:13;
                 mergeza(i,(h-1)*13+k)=mergez(j,(h-1)*13+k);
@@ -126,7 +126,7 @@ end;
 % mergeza(100001:100002,1:451)
 % mergeza(1:2,1:451)
 
-%% Section worka-workaa
+%% Section worka-workaa -> could be done earlier
 %now delete empty rows:
 %and eliminate 2 extra columns (12 and 13) for each sample:
 worka=zeros(size(refnt,1),s*11);
@@ -178,10 +178,10 @@ end;
 %%
 %put chr and nt in 1st positions
 for i=1:h;
-for j=1:s-1;
-workaa(i,1)=max(workaa(i,1),workaa(i,j*11+1));
-workaa(i,2)=max(workaa(i,2),workaa(i,j*11+2));
-end;
+    for j=1:s-1;
+        workaa(i,1)=max(workaa(i,1),workaa(i,j*11+1));
+        workaa(i,2)=max(workaa(i,2),workaa(i,j*11+2));
+    end;
 end;
 
 mergezb=workaa;
@@ -207,7 +207,7 @@ h=size(mergezb,1);
 
 % Looks at chromosome and nucleotide posn, looks for variant reads greater
 % than 1 percent, for any of the samples in the row, flag as variant calls
-% (sites of possibly important nt vairation), looks for most common
+% (sites of possibly important nt variation), looks for most common
 % nucleotide -> refnt, second most common is variant
 
 % Rather than figure out line by line, import reference human genome seq
@@ -254,10 +254,10 @@ for i=1:lenRef;
     refSeq(i, 2) = ntVals(i);
 end;
 
-%% Section workb                                                                                                                  
+%% Section workb
 %Now modify to calculate call totals
 workb=zeros(h,s*20);
-for i=1:h; 
+for i=1:h;
     for j=1:s;
         for k=1:6;
             workb(i,(j-1)*20+k)=mergezb(i,(j-1)*11+k);
@@ -265,7 +265,7 @@ for i=1:h;
         workb(i,(j-1)*20+7)=mergezb(i,(j-1)*11+11);
         workb(i,(j-1)*20+17)=mergezb(i,(j-1)*11+11);
         workb(i,(j-1)*20+11)=mergezb(i,(j-1)*11+1);
-        workb(i,(j-1)*20+12)=mergezb(i,(j-1)*11+2); 
+        workb(i,(j-1)*20+12)=mergezb(i,(j-1)*11+2);
         for k=1:4;
             workb(i,(j-1)*20+12+k)=mergezb(i,(j-1)*11+6+k);
         end;
@@ -288,6 +288,9 @@ end;
 %chr nt Af Gf Cf Tf indels total-f-read# max-f-read% 0  chr nt Ar Gr Cr Tr indels total-r-read# max-r-read% 0
 %                                        or 2 if total-f-read#<10                    similar
 
+%% Section copyWorkb
+% Align the reference human genome (hg-19 on the UCSC database) with the nt
+% positions considered in the table
 workbRows = size(workb, 1);
 
 refSeqNew = zeros(workbRows, 2);
@@ -301,8 +304,30 @@ for i=1:workbRows;
     if ~(isempty(row) && isempty(col));
         copyWorkb(i, end) = refSeq(row, col+1);
         copyWorkb(i, end-1) = refSeq(row, col);
+    else
     end;
 end;
+
+%% Section workNewRef
+% Use the reference human genome sequence in order to determine the number
+% of variants and by how much this is off from the reference (find the
+% percent allele frequency)
+
+% First, set up the new worktable based off of copyWorkb
+workNewRef = copyWorkb;
+
+for i=1:s;
+    % Six new fields for number of var indels, A var, G var, C var, T var
+    newCols = zeros(workbRows, 6);
+    
+ %   if(i == s);
+ %       workNewRef = [copyWorkb(:, 1 : end - 2) newCols copyWorkb(:, end - 1 : end)];
+ %   else
+    workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
+ %   end;
+end;
+
+
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
@@ -345,7 +370,7 @@ for i=1:size(workc,1);
         else
         end;
     end;
-end;  
+end;
 
 %isolate read counts in f and r here
 temp=zeros(k,s*2);
@@ -374,7 +399,7 @@ for m=1:size(T1T2exonsflush,1);
         end;
     end;
 end;
-        
+
 %now divide by exon size to get average read count per nt
 for m=1:size(T1T2exonsflush,1);
     for h=5:(s+4);
@@ -385,7 +410,7 @@ end;
 %%save /Users/djk/Desktop/T1T2readcount.txt T1T2readcount -ascii -double -tabs
 
 %% Section workd
-%use allele frequency cut off of 0.1%
+%use allele frequency cutoff of 0.1%
 %use read # cutoff of 2
 
 AFcutoff=0.001;
@@ -408,13 +433,14 @@ for i=1:size(workc,1);
     else
     end;
 end;
+
 %k
 % k = number of rows with potential variants, is used in subsequent steps,
 % here = 26108
 % steps above eliminate all nt positions in which there is no sample with > 10 reads in either direction
-%Lana: need to check this 
+%Lana: need to check this
 
-%% Section base
+%% Section0 base
 base=0;
 for i=1:k;
     for h=1:(s*2);
@@ -427,9 +453,9 @@ for i=1:k;
                 else
                 end;
                 base2freq=0;
-                
-            end;   
-                
+
+            end;
+
             for j=3:6;
                 if j~=base+2;
                     if (workd(i,(h-1)*10+j)>base2freq)&&(workd(i,(h-1)*10+j)*workd(i,(h-1)*10+8)>1.5);
@@ -453,10 +479,10 @@ end;
 %columns in workd are: Affrac denotes read fraction of As in forward direction, etc.
 % 1   2    3      4      5      6      7            8           9      10  11 - 20
 %chr nt Affrac Gffrac Cffrac Tffrac indelfrac total-f-read# max-f-frac base-call  same for reverse reads
-%                                        or 2 if total-f-read#<10     
+%                                        or 2 if total-f-read#<10
 % base-call is a number; 1 2 3 4 = A G C T; 2 digits mean first is most common call, second is second most common.
 %these are calculated separately for the forward and the reverse reads (col's 10 and 20, respectively, etc.)
-%here require 5 reads in a direction to make a base call.    
+%here require 5 reads in a direction to make a base call.
 
 %% Section worke
 worke=zeros(k,10*s);
@@ -510,7 +536,7 @@ end;
 %total-f-read# f-GT f-max-AF f-minor-AF       same for reverse reads     min of f and r base-calls
 %            0 means no call
 %f-max-AF = forward maximum allele fraction; f-minor-AF = forward second-highest allele fraction
-%column 10 is a key value since it is the minimum of the genotype of the forward and the reverse read, 
+%column 10 is a key value since it is the minimum of the genotype of the forward and the reverse read,
 %filtering out many bogus calls that are seen in one orientation only.
 % GT is a number; 1 2 3 4 5 = A G C T del; 2 digits mean first is most common call, second is second most common.
 % column 5 is the maximum base-call over all samples analyzed.
@@ -550,7 +576,7 @@ for i=1:k;
     end;
 end;
 % workf(1:10,1:5)
-%columns in workf are: chr nt maxGT(col5 from worke) #samples-het-GT  - then the 9 columns for each sample, 
+%columns in workf are: chr nt maxGT(col5 from worke) #samples-het-GT  - then the 9 columns for each sample,
 %missing col5 = total-f-read# f-GT f-max-AF f-minor-AF [same for reverse reads] min of f and r genotypes
 
 %% Section workg
@@ -582,7 +608,7 @@ j=j-1;
 %T1T2SNPSExonIntron is for 1000 g data and exac compiled
 for i=1:j;
     for m=1:size(TSC1TSC2GenomAD,1);
-        if workg(i,2)==TSC1TSC2GenomAD(m,2); 
+        if workg(i,2)==TSC1TSC2GenomAD(m,2);
             workg(i,5)=TSC1TSC2GenomAD(m,3);
         else
         end;
@@ -617,9 +643,9 @@ for i=1:j;
     end;
 end;
 %%save /Users/djk/Desktop/workga-point-12-14.txt workga -ascii -double -tabs
-%workga is condensed down from workg to have just one col per sample with AF for the second most common allele, 
+%workga is condensed down from workg to have just one col per sample with AF for the second most common allele,
 %following the initial 5 fields of chr nt maxGT #-het-GT exon-SNP-AF-info
-%when the variant alleles in the two directions are discordant, the AF value is made -1 
+%when the variant alleles in the two directions are discordant, the AF value is made -1
 
 %%Section workgb
 %captures some additional information from workga
@@ -664,7 +690,7 @@ for i=1:j;
         workgc(i,m)=workgb(i,m-6);
     end;
 end;
-%!!!!!!!!! Import TSC1_exon_coord_flush.txt and TSC2_exon_coord_flush.txt 
+%!!!!!!!!! Import TSC1_exon_coord_flush.txt and TSC2_exon_coord_flush.txt
 %import nt_aa_transl.txt, TSC2_nt_coding.txt, TSC1_nt_coding.txt
 
 for i=1:j;
@@ -685,7 +711,7 @@ for i=1:j;
                             workgc(i,12)=nt_aa_transl(jj,4);
                         else
                         end;
-                    end;  
+                    end;
                     nttemp=TSC1_nt_coding(workgc(i,10));
                     % this is special for TSC1, since it is in anti-sense
                     % orientation
@@ -759,7 +785,7 @@ for i=1:j;
                             workgc(i,12)=nt_aa_transl(jj,4);
                         else
                         end;
-                    end; 
+                    end;
                     nttemp=TSC2_nt_coding(workgc(i,10));
                     if nttemp==rem(workgc(i,3),10);
                         ntmtn=workgc(i,3)/10-(rem(workgc(i,3),10)/10);
@@ -810,7 +836,7 @@ for i=1:j;
     else
     end;
 end;
-     
+
 %%save /Users/djk/Desktop/workgc-point-3-15.txt workgc -ascii -double -tabs
 
 %trim down to +-25 of an exon boundary
@@ -852,12 +878,12 @@ end;
 % Convert down to minimal size to capture indels, 5 columns per sample
 % in delc and deld:
 % chr nt #total-reads(f+r) #indels fr-indels
-% capture max indel freq among all samples in position s*5+1; 
+% capture max indel freq among all samples in position s*5+1;
 %in deld #>0.001 freq in s*5+2, #>0,<0.001 in s*5+3 posn
 % deld is trimmed down to only samples with max-indel-freq > 0.001
-minindelfreq=0.005 %this is modulable to desired level of detection
-minindelcount=2 %this is modulable to desired level of detection
-h=size(workb,1)
+minindelfreq=0.005; %this is modulable to desired level of detection
+minindelcount=2; %this is modulable to desired level of detection
+h=size(workb,1);
 delc=zeros(h,s*5+1);
 deld=zeros(h,s*5+3);
 k=0;
@@ -915,8 +941,8 @@ end;
 
 
 %%
-% now capture exon/intron posn information, goes into cols 6 and 7  
-    
+% now capture exon/intron posn information, goes into cols 6 and 7
+
 for i=1:k;
     if delep(i,1)==9;
         flag=0;
@@ -991,7 +1017,7 @@ end;
 %delep has 7+s columns:
 %chr nt max-indel-freq '#indel-freq>minindelfreq'
 %'#indel-freq>0,<minindelfreq' exon relative-position;  then s indel AF
-    
+
 %trim down to +-25 of an exon boundary, and delete indels seen in > s/2.5
 %samples
 
@@ -1036,7 +1062,7 @@ end;
 % %of: #indel-reads for each of 1st and 2nd sorted samples is < 3; # samples
 % %with indel-AF>0.001 is > 7; or p value difference between 1st
 % %and 2nd sorted samples is > 0.01.
-% 
+%
 % deldp=zeros(k,s*7+4);
 % deldp(1:k,1:s*5+3)=deld(1:k,1:s*5+3);
 % for i=1:k;
@@ -1069,7 +1095,7 @@ end;
 % %     else
 % %     end;
 % end;
-% 
+%
 % %now trim out samples for which pointer column value is 1
 % deldp2=zeros(k,s*7+4);
 % h=0;
@@ -1082,11 +1108,11 @@ end;
 % end;
 % h
 % k=h;
-% 
+%
 % %delep truncates down to indel-freqs only for each sample, after initial 7
 % %values of chr nt max-indel-freq '#indel-freq>0.001' '#indel-freq>0,<0.001'
 % %h = 1675 this time
-% 
+%
 
 % %specific to current run - compress (max) down related samples
 % %then count # samples with non-zero values in column 8
@@ -1103,7 +1129,7 @@ end;
 %         end;
 %     end;
 % end;
-% 
+%
 % %then add this info to delepr2 as an additional column at end
 % %and eliminate rows with value > 2, as likely artifacts, in delepr3
 % delepr2(1:k,1:26)=delepr(1:k,1:26);
@@ -1118,7 +1144,7 @@ end;
 % end;
 % m
 % %m=152 in this instance
-    
+
 
 
 
