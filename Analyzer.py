@@ -82,7 +82,7 @@ class Application(Frame):
 
         refSeqFile = open("genomewithinst.txt", "r")
 
-        fileData = refSeqFile.read()
+        fileData = refSeqFile.readline()
 
         indexbegin = fileData.find(':') + 1
         indexmid = fileData.find('-')
@@ -95,8 +95,14 @@ class Application(Frame):
         text_file.write("%d" % refStart)
         text_file.close()
 
+        target_file = open("genome.txt", "w")
+        shutil.copyfileobj(refSeqFile, target_file)
+
+        refSeqFile.close()
+        target_file.close()
+
         return((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
-        
+
     @profile # For use with memory profiler (can be installed via pip)
     def namereader(self):
         '''
