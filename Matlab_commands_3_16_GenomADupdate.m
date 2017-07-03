@@ -288,6 +288,22 @@ end;
 %chr nt Af Gf Cf Tf indels total-f-read# max-f-read% 0  chr nt Ar Gr Cr Tr indels total-r-read# max-r-read% 0
 %                                        or 2 if total-f-read#<10                    similar
 
+workbRows = size(workb, 1);
+
+refSeqNew = zeros(workbRows, 2);
+
+copyWorkb = workb;
+
+copyWorkb = [copyWorkb refSeqNew];
+
+for i=1:workbRows;
+    [row, col] = find(refSeq == copyWorkb(i, 2));
+    if ~(isempty(row) && isempty(col));
+        copyWorkb(i, end) = refSeq(row, col+1);
+        copyWorkb(i, end-1) = refSeq(row, col);
+    end;
+end;
+
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
 workc=zeros(h,s*20);
