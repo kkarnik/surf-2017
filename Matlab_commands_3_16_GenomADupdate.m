@@ -317,18 +317,23 @@ end;
 workNewRef = copyWorkb;
 
 for i=1:s;
-    % Six new fields for number of var indels, A var, G var, C var, T var
-    newCols = zeros(workbRows, 6);
-    
- %   if(i == s);
- %       workNewRef = [copyWorkb(:, 1 : end - 2) newCols copyWorkb(:, end - 1 : end)];
- %   else
+    % Six new fields for number of A var, G var, C var, T var, indel vars, 
+    % and total vars
+    newCols = zeros(workbRows, 6);    
     workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
- %   end;
 end;
 
-
-
+% Next, populate the new fields with the number of vars
+for n=1:s;
+    for i=1:workbRows;
+        for j=1:4;
+            if j ~= workNewRef(i, end);
+                %TODO: Set value to be number of vars
+            end;
+        end;
+    end;
+end;
+    
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
 workc=zeros(h,s*20);
