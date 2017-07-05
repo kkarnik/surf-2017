@@ -325,13 +325,40 @@ for i=1:s;
 end;
 
 % Next, populate the new fields with the number of vars
-for n=1:s;
-    for i=1:workbRows;
-        for j=1:4;
-            if j ~= workNewRef(i, end);
-                %TODO: Set value to be number of vars
+
+workNewRefWithVals = workNewRef;
+
+for i=1:workbRows;
+    refVal = workNewRef(i, end);
+    for n=1:s;
+        indexFwd = refVal + 2 + (26 * (n - 1));
+        
+        indexRev = indexFwd + 10;
+        
+        dirVals = [indexFwd indexRev];
+        
+        totReads = workNewRef(i, 8 + 26 * (n - 1)) + workNewRef(i, 18 + 26 * (n - 1));
+        
+        refColIndex = 20 + refVal + (26 * (n - 1));
+        
+        workNewRefWithVals(i, refColIndex) = -1;
+        
+        totalVar = 0;
+        
+        for j=1:5;
+            numVarReads = 0;
+            
+            actualUpdateCol = 20 + j + (26 * (n - 1));
+            
+            if(actualUpdateCol ~= refColIndex);
+                numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));                
+                workNewRefWithVals(i, actualUpdateCol) = numVarReads / totReads;
+                totalVar = totalVar + numVarReads / totReads;
             end;
         end;
+        
+        workNewRefWithVals(i, 26 * n) = totalVar;
+              
     end;
 end;
     
