@@ -215,6 +215,43 @@ h=size(mergezb,1);
 % and determine nt posn line by line, how many variants, off by how much
 % from the reference
 
+%% Section workb
+%Now modify to calculate call totals
+workb=zeros(h,s*20);
+for i=1:h;
+    for j=1:s;
+        for k=1:6;
+            workb(i,(j-1)*20+k)=mergezb(i,(j-1)*11+k);
+        end;
+        workb(i,(j-1)*20+7)=mergezb(i,(j-1)*11+11);
+        workb(i,(j-1)*20+17)=mergezb(i,(j-1)*11+11);
+        workb(i,(j-1)*20+11)=mergezb(i,(j-1)*11+1);
+        workb(i,(j-1)*20+12)=mergezb(i,(j-1)*11+2);
+        for k=1:4;
+            workb(i,(j-1)*20+12+k)=mergezb(i,(j-1)*11+6+k);
+        end;
+    end;
+end;
+
+%spacer
+for j=1:(s*2);
+    for i=1:h;
+        workb(i,(j-1)*10+8)=workb(i,(j-1)*10+3)+workb(i,(j-1)*10+4)+workb(i,(j-1)*10+5)+workb(i,(j-1)*10+6)+workb(i,(j-1)*10+7);
+        if workb(i,(j-1)*10+8)<5; % require at least 5 reads at a position to score
+            workb(i,(j-1)*10+9)=2;
+        else workb(i,(j-1)*10+9)=max(workb(i,((j-1)*10+3):((j-1)*10+7)))/workb(i,(j-1)*10+8);
+        end;
+    end;
+end;
+
+%columns in workb are now: Af denotes read count of As in forward direction, etc.
+% 1   2  3  4  5  6   7       8               9     10  11        ---                                 19    20
+%chr nt Af Gf Cf Tf indels total-f-read# max-f-read% 0  chr nt Ar Gr Cr Tr indels total-r-read# max-r-read% 0
+%                                        or 2 if total-f-read#<10                    similar
+
+%% Section refSeq
+% Create a new table for the reference human genome sequence gathered 
+% from the UCSC genome browser (this genome is hg-19)
 % initindex.txt stores the initial index, and this file was created in
 % the python analyzer.py script
 initIndex = dlmread('initindex.txt');
@@ -255,43 +292,10 @@ for i=1:lenRef;
     refSeq(i, 2) = ntVals(i);
 end;
 
-%% Section workb
-%Now modify to calculate call totals
-workb=zeros(h,s*20);
-for i=1:h;
-    for j=1:s;
-        for k=1:6;
-            workb(i,(j-1)*20+k)=mergezb(i,(j-1)*11+k);
-        end;
-        workb(i,(j-1)*20+7)=mergezb(i,(j-1)*11+11);
-        workb(i,(j-1)*20+17)=mergezb(i,(j-1)*11+11);
-        workb(i,(j-1)*20+11)=mergezb(i,(j-1)*11+1);
-        workb(i,(j-1)*20+12)=mergezb(i,(j-1)*11+2);
-        for k=1:4;
-            workb(i,(j-1)*20+12+k)=mergezb(i,(j-1)*11+6+k);
-        end;
-    end;
-end;
-
-%spacer
-for j=1:(s*2);
-    for i=1:h;
-        workb(i,(j-1)*10+8)=workb(i,(j-1)*10+3)+workb(i,(j-1)*10+4)+workb(i,(j-1)*10+5)+workb(i,(j-1)*10+6)+workb(i,(j-1)*10+7);
-        if workb(i,(j-1)*10+8)<5; % require at least 5 reads at a position to score
-            workb(i,(j-1)*10+9)=2;
-        else workb(i,(j-1)*10+9)=max(workb(i,((j-1)*10+3):((j-1)*10+7)))/workb(i,(j-1)*10+8);
-        end;
-    end;
-end;
-
-%columns in workb are now: Af denotes read count of As in forward direction, etc.
-% 1   2  3  4  5  6   7       8               9     10  11        ---                                 19    20
-%chr nt Af Gf Cf Tf indels total-f-read# max-f-read% 0  chr nt Ar Gr Cr Tr indels total-r-read# max-r-read% 0
-%                                        or 2 if total-f-read#<10                    similar
-
 %% Section copyWorkb
 % Align the reference human genome (hg-19 on the UCSC database) with the nt
-% positions considered in the table
+% positions considered in the table. The last two columns of the copyWorkb
+% table denote the nt and value corresponding to the letter (A, G, C, T)
 workbRows = size(workb, 1);
 
 refSeqNew = zeros(workbRows, 2);
@@ -324,39 +328,63 @@ for i=1:s;
     workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
 end;
 
-% Next, populate the new fields with the number of vars
+% Next, populate the new fields with the variant allele frequency
 
 workNewRefWithVals = workNewRef;
 
 for i=1:workbRows;
+    % Get the value in the reference genome
     refVal = workNewRef(i, end);
     for n=1:s;
+        % Get the index of the column corresponding to the ref in the forward dir
         indexFwd = refVal + 2 + (26 * (n - 1));
         
+        % Get the index of the column corresponding to the ref in the reverse dir
         indexRev = indexFwd + 10;
         
+        % Store these indices in an array
         dirVals = [indexFwd indexRev];
         
+        % Get the total number of reads (sum both forward and reverse)
         totReads = workNewRef(i, 8 + 26 * (n - 1)) + workNewRef(i, 18 + 26 * (n - 1));
         
+        % Get the column value of the column corresponding to the reference
+        % allele's variant frequency
         refColIndex = 20 + refVal + (26 * (n - 1));
         
+        % Set this to be -1 in order to denote that this was the reference
+        % allele
         workNewRefWithVals(i, refColIndex) = -1;
         
+        % Initialize the total number of variants
         totalVar = 0;
         
         for j=1:5;
             numVarReads = 0;
             
+            % Get the column value of where we are actually storing the
+            % variant frequency
             actualUpdateCol = 20 + j + (26 * (n - 1));
             
+            % Only consider those columns that do not represent the
+            % reference genome allele
             if(actualUpdateCol ~= refColIndex);
+                % Get the total number of variants for that specific letter
+                % (A, G, C, T, or indel)
                 numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));                
+                
+                % Update the place where we are storing the variant allele
+                % frequency corresponding to that nt
                 workNewRefWithVals(i, actualUpdateCol) = numVarReads / totReads;
+                
+                % Update the running sum of the variant frequencies for
+                % the current nt
                 totalVar = totalVar + numVarReads / totReads;
             end;
         end;
         
+        % Store the total variant allele frequency in the appropriate
+        % location
         workNewRefWithVals(i, 26 * n) = totalVar;
               
     end;
@@ -1177,8 +1205,5 @@ end;
 % end;
 % m
 % %m=152 in this instance
-
-
-
 
 %To do: integrate new SNPs
