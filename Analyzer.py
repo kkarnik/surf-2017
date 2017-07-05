@@ -4,6 +4,8 @@ from Tkinter import *
 import sys
 import os
 import subprocess
+from multiprocessing.pool import ThreadPool as Pool
+import shutil
 
 #TSC1 9:135766735-135820020
 #TSC2 16:2097990-2138713
@@ -13,16 +15,18 @@ import subprocess
 #VHL: 3:10183319-10195354
 #FLCN 17:17113000-17143000
 #FH
-
 class Application(Frame):
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def createWidgets(self):
+        '''
+        Creates the buttons and entry boxes for the user input for the analysis
+        '''
         self.genbai = Button(self, text="Generate .bai", command=self.baigenerator)
         self.genbai.pack(side=TOP)
 
@@ -37,6 +41,7 @@ class Application(Frame):
 
         self.matlab = Button(self, text="Run matlab script", command=self.runmatlab)
         self.matlab.pack()
+
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
     def runmatlab(self):
@@ -44,8 +49,9 @@ class Application(Frame):
         Runs Matlab_commands_3_16_GenomADupdate.m script
         '''
         subprocess.call(['matlab -nojvm -r Matlab_commands_3_16_GenomADupdate'], shell=True)
+        #print('Matlab script completed. Open the file for variables.')
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def combinefunctions(self):
         '''
         Combines the functions that generate and modify the files in to a
@@ -103,14 +109,15 @@ class Application(Frame):
 
         return((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def namereader(self):
         '''
-        Read through a list of files to get the bam files and store them in namelist.txt
+        Reads through a list of files to get the bam files and stores the
+        names of these files in namelist.txt
         '''
-
-        # Removed global variable in this file
         geneloc=E1.get()
+
+        numSamples = 0
 
         oldstdout = sys.stdout
         f = open('namelist.txt','w')
@@ -126,35 +133,43 @@ class Application(Frame):
             if file.endswith(".bam"):
                 #file=file.replace(".pup","")
                 print(file)
+                numSamples += 1
 
         sys.stdout=oldstdout
 
+        numSamplesFile = open("numSamples.txt", "w")
+        numSamplesFile.write("%d" % numSamples)
+        numSamplesFile.close()
+
         return geneloc
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def baigenerator(self):
         '''
-        Generates .bai files by calling a subprocess which calls the samtools index command on the UNIX command line
+        Generates .bai files by calling a subprocess which calls the samtools
+        index command on the UNIX command line
         '''
         for line in open('namelist.txt','r'):
             line2=line.replace("\n","")
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools index '+line3], shell=True)
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def pupgenerator(self, geneloc):
         '''
-        Generates .pup files by calling a subprocess which calls the samtools mpileup command on the UNIX command line
+        Generates .pup files by calling a subprocess which calls the samtools
+        mpileup command on the UNIX command line
         '''
         for line in open('namelist.txt','r'):
             line2=line.replace("\n","")
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools mpileup -r '+geneloc+' '+line3+' > '+line3+'.pup'], shell=True)
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
     def outgenerator(self):
         '''
-        Generates .out files by calling a subprocess on the UNIX command line that uses the Python script v12-q50.py
+        Generates .out files by calling a subprocess on the UNIX command line
+        that uses the Python script v12-q50.py
         '''
 
         # Previous version of the function was this:
@@ -170,7 +185,8 @@ class Application(Frame):
 
         def out_loop_operation(line):
             '''
-            Function that represents the operation done in the loop in the outgenerator function
+            Function that represents the operation done in the loop in the
+            outgenerator function
             '''
             line2=line.replace("\n","")
             line3=line2.replace(" ",line2)
@@ -183,10 +199,12 @@ class Application(Frame):
         pool.close()
         pool.join()
 
-    @profile # For use with memory profiler (can be installed via pip)
+
+    #@profile
     def agenerator(self):
         '''
-        Generates .a files by calling a subprocess which uses the cut command on the UNIX command line
+        Generates .a files by calling a subprocess which uses the cut command
+        on the UNIX command line
         '''
 
         for line in open('namelist.txt','r'):
@@ -194,7 +212,9 @@ class Application(Frame):
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
 
-    @profile # For use with memory profiler (can be installed via pip)
+    #@profile
+
+    #@profile
     def zeroscreator(self):
         '''
         Populates the mergez.txt file initially with zeroes
@@ -215,10 +235,10 @@ class Application(Frame):
             filenames=filenames+line3+'.b '
         subprocess.call(['python merger.py '+filenames+'>>mergez.txt'], shell=True)
 
+
 root = Tk()
 app = Application(master=root)
 
 app.master.title("Analyzer")
-
 
 app.mainloop()

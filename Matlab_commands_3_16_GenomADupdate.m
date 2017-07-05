@@ -79,8 +79,9 @@ end;
 %     refnt(i,2)=32149937+i-1;
 % end;
 %% Section mergez-mergeza
-%s=6;
-s=2;
+% Set the number of samples to be the number of bam files in the directory
+s = dlmread('numSamples.txt');
+
 % s = the number of sequence files being analyzed
 
 % Optimization: When the mergez array is traversed from 1 to s, then the
