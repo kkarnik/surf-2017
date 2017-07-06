@@ -125,7 +125,13 @@ class Application(Frame):
 
         #prev file location was "/Users/Lana/Documents/Lana/BWH/Dr.Kwiatkowski/CCGD/Submission_Sep2015/Bam files
         #another old path was "/Users/guest/Desktop/SIS0009b"
+        #path = "/Volumes/Untitled 1/TSC1-TSC2 SCB0002p"
+
         path = "/Users/guest/Desktop/Karthik"
+
+        #path = os.path.realpath(__file__)
+
+        #path = path.replace('/Analyzer.py', '')
 
         dirs = os.listdir( path )
 
@@ -180,8 +186,13 @@ class Application(Frame):
 
         lineList = open('namelist.txt', 'r')
 
+        numSamplesFile = open("numSamples.txt", "r")
+        numSamples = int(numSamplesFile.read())
+
         # Create the pool for the threads
-        pool = Pool(2)
+        pool = Pool(numSamples)
+
+        numSamplesFile.close()
 
         def out_loop_operation(line):
             '''
