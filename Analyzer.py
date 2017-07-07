@@ -59,7 +59,7 @@ class Application(Frame):
         is pressed
         '''
 
-        geneloc = self.namereader()
+        self.namereader()
 
         if(not self.isvalidregion(geneloc)):
             print('Error, region is not valid\n')
@@ -67,7 +67,7 @@ class Application(Frame):
         else:
             print('Valid region.\n')
 
-        self.pupgenerator(geneloc)
+        self.pupgenerator()
         self.outgenerator()
         self.agenerator()
         self.zeroscreator()
@@ -115,6 +115,7 @@ class Application(Frame):
         Reads through a list of files to get the bam files and stores the
         names of these files in namelist.txt
         '''
+        global geneloc
         geneloc=E1.get()
 
         numSamples = 0
@@ -147,8 +148,6 @@ class Application(Frame):
         numSamplesFile.write("%d" % numSamples)
         numSamplesFile.close()
 
-        return geneloc
-
     #@profile
     def baigenerator(self):
         '''
@@ -161,7 +160,7 @@ class Application(Frame):
             subprocess.call(['samtools index '+line3], shell=True)
 
     #@profile
-    def pupgenerator(self, geneloc):
+    def pupgenerator(self):
         '''
         Generates .pup files by calling a subprocess which calls the samtools
         mpileup command on the UNIX command line
@@ -201,14 +200,20 @@ class Application(Frame):
             '''
             line2=line.replace("\n","")
             line3=line2.replace(" ",line2)
+            #print("operation before call: %s\n" % line3)
             subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
+            #print("operation after call: %s\n" % line3)
+
+
 
         # Make the threads run in parallel
         for line in lineList:
+            #print("thread being run is %s\n" % line)
             pool.apply_async(out_loop_operation, (line,))
 
         pool.close()
         pool.join()
+
 
 
     #@profile
