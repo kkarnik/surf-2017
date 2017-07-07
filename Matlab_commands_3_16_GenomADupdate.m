@@ -415,39 +415,33 @@ end;
 
 filternewref = zeros(size(workNewRefWithVals, 1), size(workNewRefWithVals, 2));
 
-%{
-
-PSEUDOCODE FOR THIS FILTER SECTION
-
-for i in rows:
-
-    if for every j in the row i, the read count is less than the minimum or
-    the variant allele frequency is less than the minimum, then set the
-    ignoreRow flag to 1
-
-    if the ignoreRow flag is NOT 1, then copy that row to the filternewref
-    table
-
-%}
-
 filterrow = 1;
 
-minfreq = 0.001;
+% Only filter out rows for which at least 1 sample meets the allele
+% frequency cutoff and the minimum read count cutoff
 
 for i=1:workbRows;
+    % Flag for whether a row should be ignored by our filtering
     ignoreRow = 0;
+    
+    % Number of reads in total for a sample
     totalCounts = 0;
+    numunsatisfiedsamples = 0;
     for n=1:s;
+        % Get the total number of counts
         totalCounts = workNewRefWithVals(i, 8 + 26 * (n - 1)) + workNewRefWithVals(i, 18 + 26 * (n-1));
 
+        % Count the number of samples which do not meet the threshhold
+        % readcount and minimum allele frequency
         if(workNewRefWithVals(i, 26 * n ) < minfreq || totalCounts < minreadcount);
-            ignoreRow = 1;
+            numunsatisfiedsamples = numunsatisfiedsamples + 1;
         else
-            ignoreRow = 0;
         end;
     end;
     
-    if(ignoreRow == 0);
+    % If not every sample did not meet the threshhold, then we consider
+    % that row
+    if(numunsatisfiedsamples ~= s);
         filternewref(filterrow, :) = workNewRefWithVals(i, :);
         filterrow = filterrow + 1;
     else
