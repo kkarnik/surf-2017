@@ -36,6 +36,18 @@ class Application(Frame):
         E1 = Entry(self, bd =5)
         E1.pack(side=LEFT)
 
+        L2 = Label(self, text="Minimum Variant Allele Frequency:")
+        L2.pack(side=LEFT)
+        global E2
+        E2 = Entry(self, bd =5)
+        E2.pack(side=LEFT)
+
+        L3 = Label(self, text="Minimum read count:")
+        L3.pack(side=LEFT)
+        global E3
+        E3 = Entry(self, bd =5)
+        E3.pack(side=LEFT)
+
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
@@ -43,6 +55,18 @@ class Application(Frame):
         self.matlab.pack()
 
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
+
+    def saveminfreq(self):
+        minfreq = E2.get()
+        minfreqfile = open("minfreq.txt", "w")
+        minfreqfile.write("%0.5f" % float(minfreq))
+        minfreqfile.close()
+
+    def saveminreadcount(self):
+        minreadcount = E3.get()
+        minreadcountfile = open("minreadcount.txt", "w")
+        minreadcountfile.write("%d" % int(minreadcount))
+        minreadcountfile.close()
 
     def runmatlab(self):
         '''
@@ -58,6 +82,9 @@ class Application(Frame):
         single function which can be invoked when the "Begin Analysis" button
         is pressed
         '''
+
+        self.saveminfreq()
+        self.saveminreadcount()
 
         self.namereader()
 
@@ -214,8 +241,6 @@ class Application(Frame):
         pool.close()
         pool.join()
 
-
-
     #@profile
     def agenerator(self):
         '''
@@ -227,8 +252,6 @@ class Application(Frame):
             line2 = line.replace("\n","")
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
-
-    #@profile
 
     #@profile
     def zeroscreator(self):
