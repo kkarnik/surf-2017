@@ -322,8 +322,12 @@ end;
 workNewRef = copyWorkb;
 
 for i=1:s;
-    % Six new fields for number of A var, G var, C var, T var, indel vars, 
-    % and total vars
+    % Six new fields for: A variant allele freq, 
+    %                     G variant allele freq, 
+    %                     C variant allele freq, 
+    %                     T variant allele freq, 
+    %                     indel variant allele freq, 
+    %                     max variant allele freq
     newCols = zeros(workbRows, 6);    
     workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
 end;
@@ -357,7 +361,7 @@ for i=1:workbRows;
         workNewRefWithVals(i, refColIndex) = -1;
         
         % Initialize the total number of variants
-        totalVar = 0;
+        varList = zeros(1, 5);
         
         for j=1:5;
             numVarReads = 0;
@@ -371,21 +375,26 @@ for i=1:workbRows;
             if(actualUpdateCol ~= refColIndex);
                 % Get the total number of variants for that specific letter
                 % (A, G, C, T, or indel)
-                numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));                
                 
+                if(j ~= 5);                
+                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));                
+                else
+                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1)));
+                end;
+
                 % Update the place where we are storing the variant allele
                 % frequency corresponding to that nt
                 workNewRefWithVals(i, actualUpdateCol) = numVarReads / totReads;
                 
                 % Update the running sum of the variant frequencies for
                 % the current nt
-                totalVar = totalVar + numVarReads / totReads;
+                varList(1, j) = numVarReads / totReads;
             end;
         end;
         
         % Store the total variant allele frequency in the appropriate
         % location
-        workNewRefWithVals(i, 26 * n) = totalVar;
+        workNewRefWithVals(i, 26 * n) = max(varList);
               
     end;
 end;
@@ -1207,3 +1216,7 @@ end;
 % %m=152 in this instance
 
 %To do: integrate new SNPs
+
+% Uncomment the next line when running with the "Run matlab script" button
+% in the Python tkinter widget
+%quit()
