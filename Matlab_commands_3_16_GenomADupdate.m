@@ -13,6 +13,15 @@ load('matlab_input_genomeADcoord.mat');
 
 %need to generate refnt file for TSC1, TSC2, done manually.
 
+% Load the minimum allele frequency that was inputted by the user in
+% the python part of the pipeline
+minfreq = dlmread('minfreq.txt');
+
+% Load the minimum read count that was inputted by the user in the python
+% part of the pipeline
+
+minreadcount = dlmread('minreadcount.txt');
+
 refnt=zeros(137002,2);
 refnt(1:75001,1)=9;
 refnt(75002:137002,1)=16;
@@ -396,6 +405,52 @@ for i=1:workbRows;
         % location
         workNewRefWithVals(i, 26 * n) = max(varList);
               
+    end;
+end;
+
+%% Section filternewref
+% Filter the data in table workNewRefWithVals based on the minimum variant
+% allele frequency and the minimum read count, and both of these values are
+% inputted by the user in the python portion of the pipeline
+
+filternewref = zeros(size(workNewRefWithVals, 1), size(workNewRefWithVals, 2));
+
+%{
+
+PSEUDOCODE FOR THIS FILTER SECTION
+
+for i in rows:
+
+    if for every j in the row i, the read count is less than the minimum or
+    the variant allele frequency is less than the minimum, then set the
+    ignoreRow flag to 1
+
+    if the ignoreRow flag is NOT 1, then copy that row to the filternewref
+    table
+
+%}
+
+filterrow = 1;
+
+minfreq = 0.001;
+
+for i=1:workbRows;
+    ignoreRow = 0;
+    totalCounts = 0;
+    for n=1:s;
+        totalCounts = workNewRefWithVals(i, 8 + 26 * (n - 1)) + workNewRefWithVals(i, 18 + 26 * (n-1));
+
+        if(workNewRefWithVals(i, 26 * n ) < minfreq || totalCounts < minreadcount);
+            ignoreRow = 1;
+        else
+            ignoreRow = 0;
+        end;
+    end;
+    
+    if(ignoreRow == 0);
+        filternewref(filterrow, :) = workNewRefWithVals(i, :);
+        filterrow = filterrow + 1;
+    else
     end;
 end;
     
