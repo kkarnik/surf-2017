@@ -418,7 +418,8 @@ filternewref = zeros(size(workNewRefWithVals, 1), size(workNewRefWithVals, 2));
 filterrow = 1;
 
 % Only filter out rows for which at least 1 sample meets the allele
-% frequency cutoff and the minimum read count cutoff
+% frequency cutoff and the minimum read count cutoff and have at least 1
+% read in both directions
 
 for i=1:workbRows;
     % Flag for whether a row should be ignored by our filtering
@@ -429,11 +430,14 @@ for i=1:workbRows;
     numunsatisfiedsamples = 0;
     for n=1:s;
         % Get the total number of counts
-        totalCounts = workNewRefWithVals(i, 8 + 26 * (n - 1)) + workNewRefWithVals(i, 18 + 26 * (n-1));
+        forwardcount = workNewRefWithVals(i, 8 + 26 * (n - 1));
+        reversecount = workNewRefWithVals(i, 18 + 26 * (n-1));
+        totalCounts = forwardcount + reversecount;
 
         % Count the number of samples which do not meet the threshhold
-        % readcount and minimum allele frequency
-        if(workNewRefWithVals(i, 26 * n ) < minfreq || totalCounts < minreadcount);
+        % readcount and minimum allele frequency or do not have at least 1 
+        % read in both directions 
+        if(workNewRefWithVals(i, 26 * n ) < minfreq || totalCounts < minreadcount || forwardcount < 1 || reversecount < 1);
             numunsatisfiedsamples = numunsatisfiedsamples + 1;
         else
         end;
