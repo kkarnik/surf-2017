@@ -35,7 +35,7 @@ class Application(Frame):
         global E1
         E1 = Entry(self, bd =5)
         E1.pack(side=LEFT)
-
+        '''
         L2 = Label(self, text="Minimum Variant Allele Frequency:")
         L2.pack(side=LEFT)
         global E2
@@ -47,26 +47,39 @@ class Application(Frame):
         global E3
         E3 = Entry(self, bd =5)
         E3.pack(side=LEFT)
-
+        '''
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
         self.matlab = Button(self, text="Run matlab script", command=self.runmatlab)
         self.matlab.pack()
 
+
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
     def saveminfreq(self):
+        '''
+        Saves the input value for the minimum variant allele frequency into a text file, which will be imported as
+        a variable in matlab.
+        '''
+        '''
         minfreq = E2.get()
         minfreqfile = open("minfreq.txt", "w")
         minfreqfile.write("%0.5f" % float(minfreq))
         minfreqfile.close()
+        '''
 
     def saveminreadcount(self):
+        '''
+        Saves the input value for the minimum read count into a text file, which will be imported as a variable
+        in matlab.
+        '''
+        '''
         minreadcount = E3.get()
         minreadcountfile = open("minreadcount.txt", "w")
         minreadcountfile.write("%d" % int(minreadcount))
         minreadcountfile.close()
+        '''
 
     def runmatlab(self):
         '''
@@ -98,6 +111,8 @@ class Application(Frame):
         self.outgenerator()
         self.agenerator()
         self.zeroscreator()
+
+        print("Python analysis complete. mergez.txt file and namelist.txt file generated.\n")
 
     def isvalidregion(self, geneloc):
         '''
@@ -241,6 +256,8 @@ class Application(Frame):
         pool.close()
         pool.join()
 
+
+
     #@profile
     def agenerator(self):
         '''
@@ -252,6 +269,8 @@ class Application(Frame):
             line2 = line.replace("\n","")
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
+
+    #@profile
 
     #@profile
     def zeroscreator(self):
@@ -273,7 +292,6 @@ class Application(Frame):
             line3 = line2.replace(" ",line2)
             filenames=filenames+line3+'.b '
         subprocess.call(['python merger.py '+filenames+'>>mergez.txt'], shell=True)
-
 
 root = Tk()
 app = Application(master=root)
