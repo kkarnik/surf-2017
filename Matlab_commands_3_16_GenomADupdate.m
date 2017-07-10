@@ -341,13 +341,17 @@ for i=1:s;
     workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
 end;
 
-% Next, populate the new fields with the variant allele frequency
+workNewRef = [workNewRef zeros(workbRows, s)];
+
+% Next, populate the new fields with the variant allele frequency. This
+% table also contains a column for the most common variant nucleotide
+% letters in each sample. These columns are at the end of the table
 
 workNewRefWithVals = workNewRef;
 
 for i=1:workbRows;
     % Get the value in the reference genome
-    refVal = workNewRef(i, end);
+    refVal = workNewRef(i, end - s);
     for n=1:s;
         % Get the index of the column corresponding to the ref in the forward dir
         indexFwd = refVal + 2 + (26 * (n - 1));
@@ -400,11 +404,29 @@ for i=1:workbRows;
                 varList(1, j) = numVarReads / totReads;
             end;
         end;
-        
-        % Store the total variant allele frequency in the appropriate
+                        
+        % Store the maximum variant allele frequency in the appropriate
         % location
-        workNewRefWithVals(i, 26 * n) = max(varList);
-              
+        workNewRefWithVals(i, 26 * n) = max(varList(1, 1:4));
+        
+        letterVars = varList(1, 1:4);
+        
+        maxVarFreqLetter = find(letterVars==max(max(letterVars)));
+        
+        numString = '';
+        
+        for ind=1:size(maxVarFreqLetter, 2);
+            numString = strcat(numString, int2str(maxVarFreqLetter(1, ind)));
+        end;
+        
+        maxLetter = str2double(numString);
+        
+        if(workNewRefWithVals(i, 26 * n) == 0);
+            workNewRefWithVals(i, 26 * s + 2 + n) = 0;
+        else
+            workNewRefWithVals(i, 26 * s + 2 + n) = maxLetter;
+        end; 
+        
     end;
 end;
 
@@ -433,11 +455,12 @@ for i=1:workbRows;
         forwardcount = workNewRefWithVals(i, 8 + 26 * (n - 1));
         reversecount = workNewRefWithVals(i, 18 + 26 * (n-1));
         totalCounts = forwardcount + reversecount;
+        %indelFreq = workNewRefWithVals(i, 25 + 26 * (n - 1));
 
         % Count the number of samples which do not meet the threshhold
         % readcount and minimum allele frequency or do not have at least 1 
         % read in both directions 
-        if(workNewRefWithVals(i, 26 * n ) < minfreq || totalCounts < minreadcount || forwardcount < 1 || reversecount < 1);
+        if((workNewRefWithVals(i, 26 * n ) < minfreq ) || totalCounts < minreadcount || forwardcount < 1 || reversecount < 1);
             numunsatisfiedsamples = numunsatisfiedsamples + 1;
         else
         end;
