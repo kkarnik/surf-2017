@@ -474,7 +474,34 @@ for i=1:workbRows;
     else
     end;
 end;
+%% Section filterwithoutzeros
+% Remove rows with zeros from the end of the table
+
+% Might have already been done with filter?
+
+%% Section formatfilter
+%{
+formatfilter = zeros(size(filternewref, 1), 8 + s);
+
+formatfilter(:, 1:2) = filternewref(:, 1:2);
+
+formatfilter(:, 4) = filternewref(:, (26*s) + 2); % Convert these to letters in excel
+
+% Get the allele frequency for the sample with the highest allele frequency
+for i=1:size(filternewref, 1);
+    maxFreq = filternewref(i, 26);
+    sampleWithHighest = 1;
     
+    for n=2:s;
+        if(filternewref(i, 26*n) > maxFreq);
+            maxFreq = filternewref(i, 26*n);
+        end;
+    end;
+    
+    
+end;
+%}
+
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
 workc=zeros(h,s*20);
