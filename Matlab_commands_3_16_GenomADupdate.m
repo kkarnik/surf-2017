@@ -476,31 +476,71 @@ for i=1:workbRows;
 end;
 %% Section filterwithoutzeros
 % Remove rows with zeros from the end of the table
+filterwithoutzeros = filternewref(any(filternewref, 2), :);
 
 % Might have already been done with filter?
 
 %% Section formatfilter
-%{
-formatfilter = zeros(size(filternewref, 1), 8 + s);
 
-formatfilter(:, 1:2) = filternewref(:, 1:2);
+numFilterRows = size(filterwithoutzeros, 1);
 
-formatfilter(:, 4) = filternewref(:, (26*s) + 2); % Convert these to letters in excel
+% First column is the reference genome values
+formatfilter = zeros(numFilterRows, 8 + s);
+
+% Second column is the nucleotide positions
+formatfilter(:, 1:2) = filterwithoutzeros(:, 1:2);
+
+% Fourth column is the reference nucleotice values, where
+% A = 1, G = 2, C = 3, T = 4
+formatfilter(:, 4) = filterwithoutzeros(:, (26*s) + 2); % Convert these to letters in excel
 
 % Get the allele frequency for the sample with the highest allele frequency
-for i=1:size(filternewref, 1);
-    maxFreq = filternewref(i, 26);
+for i=1:numFilterRows;
+    maxFreq = filterwithoutzeros(i, 26);
     sampleWithHighest = 1;
     
     for n=2:s;
-        if(filternewref(i, 26*n) > maxFreq);
-            maxFreq = filternewref(i, 26*n);
+        if(filterwithoutzeros(i, 26*n) > maxFreq);
+            maxFreq = filterwithoutzeros(i, 26*n);
+            sampleWithHighest = n;
         end;
     end;
     
+    % Set the 5th column to be the variant nucleotide value of the sample
+    % with the highest variant allele frequency
+    formatfilter(i, 5) = maxFreq;
+    
+    % Set the 6th column to be the allele frequency of the sample with the
+    % highest allele frequency
+    formatfilter(i, 6) = filterwithoutzeros(i, 26*s + 2 + n);
+    
+    numSamplesGeq = 0;
+    
+    for n=1:s;
+        if(filterwithoutzeros(i, 26*n) >= minfreq);
+            numSamplesGeq = numSamplesGeq + 1;
+        else
+        end;
+    end;
+    
+    % Set the 7th column to be the number of samples at or higher than the
+    % threshold variant allele frequency
+    formatfilter(i, 7) = numSamplesGeq;
+    
+    [row, col] = find(TSC1TSC2GenomAD == formatfilter(i, 2));
+    
+    % Set the 8th, 9th, and so on columns to be the variant allele
+    % frequency for each sample
+    if(~isempty(row) && ~isempty(col));
+        formatfilter(i, 8) = TSC1TSC2GenomAD(row(end, 1), 3);
+    end;
+    
+    for m=1:s;
+        formatfilter(i, 8+m) = filterwithoutzeros(i, 26*m);
+    end;
     
 end;
-%}
+
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
