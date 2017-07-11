@@ -541,6 +541,36 @@ for i=1:numFilterRows;
     
 end;
 
+%% Section formatfilterexons
+
+% Now column 9 represents the exon number at that nucleotide position and
+% columns 10, 11, 12, etc. represent the variant allele frequency for each
+% for the samples. Exon number of 0 means that this nucleotide is not in an
+% exonic region.
+formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 1) formatfilter(:, 9:end)];
+
+numExons = size(T1T2exonsflush, 1);
+
+for i=1:numFilterRows;
+    foundFlag = 0;
+    index = 0;
+    rowNum = 0;
+    
+    while(index < numExons && foundFlag == 0);
+        index = index + 1;
+        if(formatfilter(i, 1) == T1T2exonsflush(index, 1));
+            if(formatfilter(i, 2) >= T1T2exonsflush(index, 3) && formatfilter(i, 2) <= T1T2exonsflush(index, 4));
+                rowNum = index;
+                foundFlag = 1;
+            end;
+        end;
+    end;
+        
+    if(rowNum ~= 0);
+        formatfilterexons(i, 9) = T1T2exonsflush(rowNum, 2);
+    end;
+    
+end;
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
