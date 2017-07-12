@@ -478,13 +478,22 @@ end;
 % Remove rows with zeros from the end of the table
 filterwithoutzeros = filternewref(any(filternewref, 2), :);
 
-% Might have already been done with filter?
-
 %% Section formatfilter
+% The columns in this output data are:
+% 1) chromosome number
+% 2) nt positions
+% 3) 0 (will later be used to represent chr:ntstart-ntend in Excel
+% 4) ref nt value (A G C T = 1 2 3 4)
+% 5) Variant nt value for sample with highest variant AF
+% 6) AF of sample with highest AF
+% 7) Number of samples at or greater than the threshold variant AF
+% 8) Variant AF for Sample 1
+% 9) "          for Sample 2
+% ... and so on for each of the samples
 
 numFilterRows = size(filterwithoutzeros, 1);
 
-% First column is the reference genome values
+% First column is the chromosome numbers
 formatfilter = zeros(numFilterRows, 8 + s);
 
 % Second column is the nucleotide positions
@@ -547,9 +556,19 @@ end;
 % columns 10, 11, 12, etc. represent the variant allele frequency for each
 % for the samples. Exon number of 0 means that this nucleotide is not in an
 % exonic region.
-formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 1) formatfilter(:, 9:end)];
+formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
 
 numExons = size(T1T2exonsflush, 1);
+
+numT1Exons = 0;
+
+for i=1:numExons;
+    if(T1T2exonsflush(i, 1) == 9);
+        numT1Exons = numT1Exons + 1;
+    end;
+end;
+
+numT2Exons = numExons - numT1Exons;
 
 for i=1:numFilterRows;
     foundFlag = 0;
@@ -558,16 +577,40 @@ for i=1:numFilterRows;
     
     while(index < numExons && foundFlag == 0);
         index = index + 1;
+        
+        % Make sure the chr numbers match up
         if(formatfilter(i, 1) == T1T2exonsflush(index, 1));
             if(formatfilter(i, 2) >= T1T2exonsflush(index, 3) && formatfilter(i, 2) <= T1T2exonsflush(index, 4));
                 rowNum = index;
                 foundFlag = 1;
-            end;
+            end;            
         end;
     end;
         
     if(rowNum ~= 0);
         formatfilterexons(i, 9) = T1T2exonsflush(rowNum, 2);
+        
+    else
+        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
+        % TSC2 GENE CASE *************************************************
+        distanceVals = zeros(numT1Exons, 2);           
+        for j=1:numT1Exons;
+            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
+        end;
+        
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+        %if(col == 1);
+        %    distVal = T1T2exonsflush(row, 3) - formatfilter(i, 2);
+        %else
+        %    distVal = formatfilter(i, 2) - T1T2exonsflush(row, 4);
+        %end;
+        
+        distVal = formatfilter(i, 2) - T1T2exonsflush(row, col + 2);
+        
+        formatfilterexons(i, 10) = distVal;
+        
     end;
     
 end;
@@ -575,8 +618,8 @@ end;
 %% Section exportformatfilter
 % Here, we export the data in the formatfilter table to an excel document
 
-excelfile = 'datatables.xlsx';
-xlswrite(excelfile, formatfilter);
+%excelfile = 'datatables.xlsx';
+%xlswrite(excelfile, formatfilter);
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
