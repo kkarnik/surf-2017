@@ -553,9 +553,10 @@ end;
 %% Section formatfilterexons
 
 % Now column 9 represents the exon number at that nucleotide position and
-% columns 10, 11, 12, etc. represent the variant allele frequency for each
-% for the samples. Exon number of 0 means that this nucleotide is not in an
-% exonic region.
+% column 10 represents the distance that this nucleotide position is from
+% the nearest exon. Columns 11, 12, etc. represent the variant allele 
+% frequency for each for the samples. Exon number of 0 means that this 
+% nucleotide is not in an exonic region.
 formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
 
 numExons = size(T1T2exonsflush, 1);
@@ -586,30 +587,51 @@ for i=1:numFilterRows;
             end;            
         end;
     end;
-        
+    
+    % Case when the nucleotide position is in an exonic region
     if(rowNum ~= 0);
         formatfilterexons(i, 9) = T1T2exonsflush(rowNum, 2);
         
+    % Case when the nucleotide position is in an intronic region
     else
         % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
         % TSC2 GENE CASE *************************************************
         distanceVals = zeros(numT1Exons, 2);           
+
+        % Put all the distances in a table
         for j=1:numT1Exons;
             distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
             distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
         end;
         
+        % Find the absolute value of the distance from the nearest exon
         minElement = min(min(distanceVals));
         [row, col] = find(distanceVals == minElement);
-        %if(col == 1);
-        %    distVal = T1T2exonsflush(row, 3) - formatfilter(i, 2);
-        %else
-        %    distVal = formatfilter(i, 2) - T1T2exonsflush(row, 4);
-        %end;
-        
+
+        % Get the actual distance from the nearest exon
         distVal = formatfilter(i, 2) - T1T2exonsflush(row, col + 2);
         
         formatfilterexons(i, 10) = distVal;
+        
+        % TSC2 CASE:
+        %{
+        distanceVals = zeros(numT2Exons, 2);           
+
+        % Put all the distances in a table
+        for j=numT1Exons+1:numExons;
+            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
+        end;
+        
+        % Find the absolute value of the distance from the nearest exon
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+
+        % Get the actual distance from the nearest exon
+        distVal = T1T2exonsflush(row, col + 2) - formatfilter(i, 2);
+        
+        formatfilterexons(i, 10) = distVal;
+        %}
         
     end;
     
