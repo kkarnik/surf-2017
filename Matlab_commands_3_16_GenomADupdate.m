@@ -478,6 +478,47 @@ end;
 % Remove rows with zeros from the end of the table
 filterwithoutzeros = filternewref(any(filternewref, 2), :);
 
+
+%% Section import Genome AD refnt and variant info
+genomeADalts = dlmread('reformatgenomeAD.txt');
+numLetters = size(genomeADalts, 1);
+%{
+genomeADnumValues = zeros(numLetters, 1);
+
+for i=1:numLetters;
+    if(length(genomeADalts{i}) == 1);
+        if(genomeADalts{i} == 'A');
+            genomeADnumValues(i, 1) = 1;
+
+        elseif(genomeADalts{i} == 'G');
+            genomeADnumValues(i, 1) = 2;
+
+        elseif(genomeADalts{i} == 'C');
+            genomeADnumValues(i, 1) = 3;
+
+        elseif(genomeADalts{i} == 'T');
+            genomeADnumValues(i, 1) = 4;
+
+        end;
+
+    else
+        genomeADnumValues(i, 1) = 5;
+    end;
+end;
+%}
+% Change the letters to 1 2 3 4 = A G C T and denote change to multiple
+% letters by 5 (use length and {} to determine the length of the string
+% stored in a cell
+
+genomeADposns = dlmread('genomeADposns.txt');
+numPosns = size(genomeADposns, 1);
+% Use the positions in the above matrix variable as a lookup table in order
+% to determine where the sites of interest are as we go through this table
+% later
+
+mergedGenomeData = [genomeADposns genomeADalts];
+
+
 %% Section formatfilter
 % The columns in this output data are:
 % 1) chromosome number
@@ -515,11 +556,11 @@ for i=1:numFilterRows;
         end;
     end;
 
-    % Set the 5th column to be the variant nucleotide value of the sample
+    % Set the 5th column to be the frequency of the sample
     % with the highest variant allele frequency
     formatfilter(i, 5) = maxFreq;
 
-    % Set the 6th column to be the allele frequency of the sample with the
+    % Set the 6th column to be the variant nt value of the sample with the
     % highest allele frequency
     formatfilter(i, 6) = filterwithoutzeros(i, 26*s + 2 + sampleWithHighest);
 
@@ -536,14 +577,28 @@ for i=1:numFilterRows;
     % threshold variant allele frequency
     formatfilter(i, 7) = numSamplesGeq;
 
+    % Set the 8th column to be the percent of variant allele in human
+    % population
     [row, col] = find(TSC1TSC2GenomAD == formatfilter(i, 2));
 
-    % Set the 8th, 9th, and so on columns to be the variant allele
-    % frequency for each sample
+    [rowAD, colAD] = find(mergedGenomeData == formatfilter(i, 2));
+
     if(~isempty(row) && ~isempty(col));
-        formatfilter(i, 8) = TSC1TSC2GenomAD(row(end, 1), 3);
+        displayFlag = 0;
+        for index=1:size(rowAD, 1);
+            if(mergedGenomeData(rowAD(index, 1), 2) == formatfilter(i, 6));
+                displayFlag = 1;
+            end;
+        end;
+
+
+        if(displayFlag == 1);
+            formatfilter(i, 8) = TSC1TSC2GenomAD(row(end, 1), 3);
+        end;
     end;
 
+    % Set the 9th, 10th, and so on columns to be the variant allele
+    % frequency for each sample
     for m=1:s;
         formatfilter(i, 8+m) = filterwithoutzeros(i, 26*m);
     end;
@@ -610,6 +665,9 @@ for i=1:numFilterRows;
 
         % Get the actual distance from the nearest exon
         distVal = formatfilter(i, 2) - T1T2exonsflush(row, col + 2);
+
+        % Closest exon
+        formatfilterexons(i, 9) = T1T2exonsflush(row, 2);
 
         formatfilterexons(i, 10) = distVal;
 
