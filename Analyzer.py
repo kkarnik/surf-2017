@@ -35,19 +35,19 @@ class Application(Frame):
         global E1
         E1 = Entry(self, bd =5)
         E1.pack(side=LEFT)
-        '''
+
         L2 = Label(self, text="Minimum Variant Allele Frequency:")
         L2.pack(side=LEFT)
         global E2
         E2 = Entry(self, bd =5)
         E2.pack(side=LEFT)
 
-        L3 = Label(self, text="Minimum read count:")
+        L3 = Label(self, text="Minimum read count in each direction:")
         L3.pack(side=LEFT)
         global E3
         E3 = Entry(self, bd =5)
         E3.pack(side=LEFT)
-        '''
+
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
@@ -62,24 +62,24 @@ class Application(Frame):
         Saves the input value for the minimum variant allele frequency into a text file, which will be imported as
         a variable in matlab.
         '''
-        '''
+
         minfreq = E2.get()
         minfreqfile = open("minfreq.txt", "w")
         minfreqfile.write("%0.5f" % float(minfreq))
         minfreqfile.close()
-        '''
+
 
     def saveminreadcount(self):
         '''
         Saves the input value for the minimum read count into a text file, which will be imported as a variable
         in matlab.
         '''
-        '''
+
         minreadcount = E3.get()
         minreadcountfile = open("minreadcount.txt", "w")
         minreadcountfile.write("%d" % int(minreadcount))
         minreadcountfile.close()
-        '''
+
 
     def runmatlab(self):
         '''

@@ -259,7 +259,7 @@ end;
 %                                        or 2 if total-f-read#<10                    similar
 
 %% Section refSeq
-% Create a new table for the reference human genome sequence gathered 
+% Create a new table for the reference human genome sequence gathered
 % from the UCSC genome browser (this genome is hg-19)
 % initindex.txt stores the initial index, and this file was created in
 % the python analyzer.py script
@@ -331,13 +331,13 @@ end;
 workNewRef = copyWorkb;
 
 for i=1:s;
-    % Six new fields for: A variant allele freq, 
-    %                     G variant allele freq, 
-    %                     C variant allele freq, 
-    %                     T variant allele freq, 
-    %                     indel variant allele freq, 
+    % Six new fields for: A variant allele freq,
+    %                     G variant allele freq,
+    %                     C variant allele freq,
+    %                     T variant allele freq,
+    %                     indel variant allele freq,
     %                     max variant allele freq
-    newCols = zeros(workbRows, 6);    
+    newCols = zeros(workbRows, 6);
     workNewRef = [workNewRef(:, 1 : 20 + 20*(i-1) + 6*(i-1)) newCols workNewRef(:, 21 + 20*(i-1) + 6*(i-1) : end)];
 end;
 
@@ -355,42 +355,42 @@ for i=1:workbRows;
     for n=1:s;
         % Get the index of the column corresponding to the ref in the forward dir
         indexFwd = refVal + 2 + (26 * (n - 1));
-        
+
         % Get the index of the column corresponding to the ref in the reverse dir
         indexRev = indexFwd + 10;
-        
+
         % Store these indices in an array
         dirVals = [indexFwd indexRev];
-        
+
         % Get the total number of reads (sum both forward and reverse)
         totReads = workNewRef(i, 8 + 26 * (n - 1)) + workNewRef(i, 18 + 26 * (n - 1));
-        
+
         % Get the column value of the column corresponding to the reference
         % allele's variant frequency
         refColIndex = 20 + refVal + (26 * (n - 1));
-        
+
         % Set this to be -1 in order to denote that this was the reference
         % allele
         workNewRefWithVals(i, refColIndex) = -1;
-        
+
         % Initialize the total number of variants
         varList = zeros(1, 5);
-        
+
         for j=1:5;
             numVarReads = 0;
-            
+
             % Get the column value of where we are actually storing the
             % variant frequency
             actualUpdateCol = 20 + j + (26 * (n - 1));
-            
+
             % Only consider those columns that do not represent the
             % reference genome allele
             if(actualUpdateCol ~= refColIndex);
                 % Get the total number of variants for that specific letter
                 % (A, G, C, T, or indel)
-                
-                if(j ~= 5);                
-                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));                
+
+                if(j ~= 5);
+                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));
                 else
                     numVarReads = workNewRef(i, j + 2 + (26 * (n - 1)));
                 end;
@@ -398,35 +398,35 @@ for i=1:workbRows;
                 % Update the place where we are storing the variant allele
                 % frequency corresponding to that nt
                 workNewRefWithVals(i, actualUpdateCol) = numVarReads / totReads;
-                
+
                 % Update the running sum of the variant frequencies for
                 % the current nt
                 varList(1, j) = numVarReads / totReads;
             end;
         end;
-                        
+
         % Store the maximum variant allele frequency in the appropriate
         % location
         workNewRefWithVals(i, 26 * n) = max(varList(1, 1:4));
-        
+
         letterVars = varList(1, 1:4);
-        
+
         maxVarFreqLetter = find(letterVars==max(max(letterVars)));
-        
+
         numString = '';
-        
+
         for ind=1:size(maxVarFreqLetter, 2);
             numString = strcat(numString, int2str(maxVarFreqLetter(1, ind)));
         end;
-        
+
         maxLetter = str2double(numString);
-        
+
         if(workNewRefWithVals(i, 26 * n) == 0);
             workNewRefWithVals(i, 26 * s + 2 + n) = 0;
         else
             workNewRefWithVals(i, 26 * s + 2 + n) = maxLetter;
-        end; 
-        
+        end;
+
     end;
 end;
 
@@ -446,7 +446,7 @@ filterrow = 1;
 for i=1:workbRows;
     % Flag for whether a row should be ignored by our filtering
     ignoreRow = 0;
-    
+
     % Number of reads in total for a sample
     totalCounts = 0;
     numunsatisfiedsamples = 0;
@@ -454,18 +454,18 @@ for i=1:workbRows;
         % Get the total number of counts
         forwardcount = workNewRefWithVals(i, 8 + 26 * (n - 1));
         reversecount = workNewRefWithVals(i, 18 + 26 * (n-1));
-        totalCounts = forwardcount + reversecount;
+        %totalCounts = forwardcount + reversecount;
         %indelFreq = workNewRefWithVals(i, 25 + 26 * (n - 1));
 
         % Count the number of samples which do not meet the threshhold
-        % readcount and minimum allele frequency or do not have at least 1 
-        % read in both directions 
-        if((workNewRefWithVals(i, 26 * n ) < minfreq ) || totalCounts < minreadcount || forwardcount < 1 || reversecount < 1);
+        % readcount and minimum allele frequency or do not have at least 1
+        % read in both directions
+        if((workNewRefWithVals(i, 26 * n ) < minfreq ) || forwardcount < minreadcount || reversecount < minreadcount);
             numunsatisfiedsamples = numunsatisfiedsamples + 1;
         else
         end;
     end;
-    
+
     % If not every sample did not meet the threshhold, then we consider
     % that row
     if(numunsatisfiedsamples ~= s);
@@ -507,55 +507,55 @@ formatfilter(:, 4) = filterwithoutzeros(:, (26*s) + 2); % Convert these to lette
 for i=1:numFilterRows;
     maxFreq = filterwithoutzeros(i, 26);
     sampleWithHighest = 1;
-    
+
     for n=2:s;
         if(filterwithoutzeros(i, 26*n) > maxFreq);
             maxFreq = filterwithoutzeros(i, 26*n);
             sampleWithHighest = n;
         end;
     end;
-    
+
     % Set the 5th column to be the variant nucleotide value of the sample
     % with the highest variant allele frequency
     formatfilter(i, 5) = maxFreq;
-    
+
     % Set the 6th column to be the allele frequency of the sample with the
     % highest allele frequency
-    formatfilter(i, 6) = filterwithoutzeros(i, 26*s + 2 + n);
-    
+    formatfilter(i, 6) = filterwithoutzeros(i, 26*s + 2 + sampleWithHighest);
+
     numSamplesGeq = 0;
-    
+
     for n=1:s;
         if(filterwithoutzeros(i, 26*n) >= minfreq);
             numSamplesGeq = numSamplesGeq + 1;
         else
         end;
     end;
-    
+
     % Set the 7th column to be the number of samples at or higher than the
     % threshold variant allele frequency
     formatfilter(i, 7) = numSamplesGeq;
-    
+
     [row, col] = find(TSC1TSC2GenomAD == formatfilter(i, 2));
-    
+
     % Set the 8th, 9th, and so on columns to be the variant allele
     % frequency for each sample
     if(~isempty(row) && ~isempty(col));
         formatfilter(i, 8) = TSC1TSC2GenomAD(row(end, 1), 3);
     end;
-    
+
     for m=1:s;
         formatfilter(i, 8+m) = filterwithoutzeros(i, 26*m);
     end;
-    
+
 end;
 
 %% Section formatfilterexons
 
 % Now column 9 represents the exon number at that nucleotide position and
 % column 10 represents the distance that this nucleotide position is from
-% the nearest exon. Columns 11, 12, etc. represent the variant allele 
-% frequency for each for the samples. Exon number of 0 means that this 
+% the nearest exon. Columns 11, 12, etc. represent the variant allele
+% frequency for each for the samples. Exon number of 0 means that this
 % nucleotide is not in an exonic region.
 formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
 
@@ -575,66 +575,66 @@ for i=1:numFilterRows;
     foundFlag = 0;
     index = 0;
     rowNum = 0;
-    
+
     while(index < numExons && foundFlag == 0);
         index = index + 1;
-        
+
         % Make sure the chr numbers match up
         if(formatfilter(i, 1) == T1T2exonsflush(index, 1));
             if(formatfilter(i, 2) >= T1T2exonsflush(index, 3) && formatfilter(i, 2) <= T1T2exonsflush(index, 4));
                 rowNum = index;
                 foundFlag = 1;
-            end;            
+            end;
         end;
     end;
-    
+
     % Case when the nucleotide position is in an exonic region
     if(rowNum ~= 0);
         formatfilterexons(i, 9) = T1T2exonsflush(rowNum, 2);
-        
+
     % Case when the nucleotide position is in an intronic region
     else
         % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
         % TSC2 GENE CASE *************************************************
-        distanceVals = zeros(numT1Exons, 2);           
+        distanceVals = zeros(numT1Exons, 2);
 
         % Put all the distances in a table
         for j=1:numT1Exons;
             distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
             distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
         end;
-        
+
         % Find the absolute value of the distance from the nearest exon
         minElement = min(min(distanceVals));
         [row, col] = find(distanceVals == minElement);
 
         % Get the actual distance from the nearest exon
         distVal = formatfilter(i, 2) - T1T2exonsflush(row, col + 2);
-        
+
         formatfilterexons(i, 10) = distVal;
-        
+
         % TSC2 CASE:
         %{
-        distanceVals = zeros(numT2Exons, 2);           
+        distanceVals = zeros(numT2Exons, 2);
 
         % Put all the distances in a table
         for j=numT1Exons+1:numExons;
             distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
             distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
         end;
-        
+
         % Find the absolute value of the distance from the nearest exon
         minElement = min(min(distanceVals));
         [row, col] = find(distanceVals == minElement);
 
         % Get the actual distance from the nearest exon
         distVal = T1T2exonsflush(row, col + 2) - formatfilter(i, 2);
-        
+
         formatfilterexons(i, 10) = distVal;
         %}
-        
+
     end;
-    
+
 end;
 
 %% Section exportformatfilter
