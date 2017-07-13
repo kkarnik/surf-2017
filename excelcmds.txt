@@ -1,0 +1,57 @@
+For converting 1 2 3 4 = A G C T, use the following two excel commands
+
+=IF(D2=1, "A",IF(D2=2,"G",IF(D2=3,"C", IF(D2=4,"T"))))
+
+=IF(F2=1, "A",IF(F2=2,"G",IF(F2=3,"C", IF(F2=4,"T"))))
+
+------------------------------------
+
+For formatting cur:nt-nt, use the following excel command
+
+=A2&":"&B2
+
+------------------------------------
+
+Formatting for the data.xlsx file:
+
+Column types are as follows:
+
+1) int 
+2) int 
+3) string 
+4) int
+5) percent 
+6) int 
+7) int
+8) percent
+
+9) percent
+10) percent
+...
+11) spacer
+12) letter (char)
+13) letter (char)
+
+------------------------------------
+
+Formatting for the datawithexons.xlsx file:
+
+Column types are as follows:
+
+1) int 
+2) int 
+3) string 
+4) int
+5) percent 
+6) int 
+7) int
+8) percent
+9) exon number (or closest exon)
+10) position from closest exon
+
+11) percent
+12) percent
+...
+13) spacer
+14) letter (char)
+15) letter (char)
