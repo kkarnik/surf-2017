@@ -708,13 +708,13 @@ end;
 caseTSC2 = 0;
 
 numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
-cdnaLookup = zeros(numCdnaRows, 3);
+cdnaLookup = zeros(numCdnaRows, 8);
 exonData = TSC1_exon_coord_flush;
 cdnaIndex = numCdnaRows;
 
 if(caseTSC2 == 1);
     numCdnaRows = TSC2_exon_coord_flush(41,4) - TSC2_exon_coord_flush(41,3) + TSC2_exon_coord_flush(41,5);
-    cdnaLookup = zeros(numCdnaRows, 3);
+    cdnaLookup = zeros(numCdnaRows, 8);
     exonData = TSC2_exon_coord_flush;
     cdnaIndex = 1;
 end;
@@ -732,6 +732,9 @@ for i=1:size(exonData, 1);
                 cdnaLookup(rowIndex, 3) = refSeq(row, col + 1);
             end;
 
+            aaNum = ceil(cdnaIndex / 3);
+            cdnaLookup(rowIndex, 4) = aaNum;
+
             rowIndex = rowIndex + 1;
 
             % For TSC1 use this since it is in anti-sense orientation:
@@ -743,6 +746,27 @@ for i=1:size(exonData, 1);
     end;
 end;
 
+for i=1:size(cdnaLookup,1);
+    codonInd = mod(i, 3);
+
+    if(codonInd == 1);
+        firstNTval = num2str(cdnaLookup(i, 3));
+        secondNTval = num2str(cdnaLookup(i + 1, 3));
+        thirdNTval = num2str(cdnaLookup(i + 2, 3));
+    end;
+
+    codonStr = strcat(firstNTval, secondNTval, thirdNTval);
+
+    for j=1:4;
+        if(codonInd == 0);
+            codonInd = 3;
+        end;
+
+        codonStr(codonInd) = num2str(j);
+        cdnaLookup(i, 4+j) = str2double(codonStr);
+    end;
+
+end;
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
