@@ -525,8 +525,8 @@ mergedGenomeData = [genomeADposns genomeADalts];
 % 2) nt positions
 % 3) 0 (will later be used to represent chr:ntstart-ntend in Excel
 % 4) ref nt value (A G C T = 1 2 3 4)
-% 5) Variant nt value for sample with highest variant AF
-% 6) AF of sample with highest AF
+% 5) AF of sample with highest AF
+% 6) Variant nt value for sample with highest variant AF
 % 7) Number of samples at or greater than the threshold variant AF
 % 8) Variant AF for Sample 1
 % 9) "          for Sample 2
@@ -705,6 +705,17 @@ end;
 
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
+
+% The columns in the cdnaLookup table are as follows:
+% 1) cDNA number
+% 2) nt position
+% 3) ref nt value
+% 4) codon with A substituted at the index
+% 5) codon with G substituted at the index
+% 6) codon with C substituted at the index
+% 7) codon with T substituted at the index
+
+% Set to 1 if we are doing this analysis for TSC2
 caseTSC2 = 0;
 
 numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
@@ -765,6 +776,8 @@ for i=1:size(cdnaLookup,1);
         codonStr(codonInd) = num2str(j);
         cdnaLookup(i, 4+j) = str2double(codonStr);
 
+        % Get the nucleotide values in the codon
+
         val1 = str2double(codonStr(1));
         val2 = str2double(codonStr(2));
         val3 = str2double(codonStr(3));
@@ -776,8 +789,48 @@ for i=1:size(cdnaLookup,1);
             end;
         end;
     end;
-
 end;
+
+%% Section varCodons
+% Get the variant codons and put them into a table, which we then populate
+% with mutaa numbers
+
+% The columns of the varCodons table are as follows:
+% 1) ref nt
+% 2) variant nt
+% 3) nt position
+% 4) codon number
+% 5) amino acid index number
+% 6) ref amino acid (aa)
+% 7) mut amino acid (aa)
+
+varCodons = zeros(size(formatfilterexons, 1), 7);
+
+varCodons(:, 1) = formatfilterexons(:, 4);
+varCodons(:, 2) = formatfilterexons(:, 6);
+varCodons(:, 3) = formatfilterexons(:, 2);
+
+for i=1:size(varCodons, 1);
+    [row, col] = find(cdnaLookup == varCodons(i, 3));
+
+    if ~(isempty(row) && isempty(col));
+        varCodons(i, 4) = cdnaLookup(row, 1);
+
+        varCodons(i, 5) = cdnaLookup(row, 4);
+
+        colVal = 8 + varCodons(i, 1);
+        varCodons(i, 6) = cdnaLookup(row, colVal);
+
+        if(length(num2str(varCodons(i, 2))) == 1);
+            mutCol = 8 + varCodons(i, 2);
+            varCodons(i, 7) = cdnaLookup(row, mutCol);
+        end;
+    end;
+end;
+
+%% Section formatfilteraa
+
+formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) formatfilterexons(:, 11:end)];
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
