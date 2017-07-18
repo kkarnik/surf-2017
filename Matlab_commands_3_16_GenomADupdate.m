@@ -703,6 +703,47 @@ end;
 %excelfile = 'datatables.xlsx';
 %xlswrite(excelfile, formatfilter);
 
+%% Section cdnaLookup
+% Here we build the first part of the lookup table for the cdna data
+caseTSC2 = 0;
+
+numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
+cdnaLookup = zeros(numCdnaRows, 3);
+exonData = TSC1_exon_coord_flush;
+cdnaIndex = numCdnaRows;
+
+if(caseTSC2 == 1);
+    numCdnaRows = TSC2_exon_coord_flush(41,4) - TSC2_exon_coord_flush(41,3) + TSC2_exon_coord_flush(41,5);
+    cdnaLookup = zeros(numCdnaRows, 3);
+    exonData = TSC2_exon_coord_flush;
+    cdnaIndex = 1;
+end;
+
+rowIndex = 1;
+
+for i=1:size(exonData, 1);
+    if(exonData(i, 5) ~= 0);
+        for val=exonData(i, 3):exonData(i, 4);
+            cdnaLookup(rowIndex, 1) = cdnaIndex;
+            cdnaLookup(rowIndex, 2) = val;
+
+            [row, col] = find(refSeq == val);
+            if ~(isempty(row) && isempty(col));
+                cdnaLookup(rowIndex, 3) = refSeq(row, col + 1);
+            end;
+
+            rowIndex = rowIndex + 1;
+
+            % For TSC1 use this since it is in anti-sense orientation:
+            cdnaIndex = cdnaIndex - 1;
+
+            % For TSC2 use this since it is in sense orientation:
+            % cdnaIndex = cdnaIndex + 1;
+        end;
+    end;
+end;
+
+
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
 workc=zeros(h,s*20);
@@ -1100,9 +1141,17 @@ for i=1:j;
                     else
                         ntmtn=rem(workgc(i,3),10);
                     end;
+
+                    % Complement basepair calculation
                     ntmtn2=5-ntmtn;
+
+                    % Check whether the position of the nucleotide is the
+                    % start of a codon
                     if rem(workgc(i,10)-1,3)==0;
                         tnt1=ntmtn2;
+
+                    % If the nucleotide position is in the middle of codon,
+                    % then do the following
                     else
                         if rem(workgc(i,10)-1,3)==1;
                             tnt2=ntmtn2;
@@ -1110,6 +1159,9 @@ for i=1:j;
                             tnt3=ntmtn2;
                         end;
                     end;
+
+                    % Use the look-up matrix to determine what protein
+                    % number the codon is encoding
                     for jj=1:size(nt_aa_transl,1);
                         if (tnt1==nt_aa_transl(jj,1))&&(tnt2==nt_aa_transl(jj,2))&&(tnt3==nt_aa_transl(jj,3));
                             workgc(i,13)=nt_aa_transl(jj,4);
