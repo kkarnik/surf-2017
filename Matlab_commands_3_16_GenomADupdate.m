@@ -708,13 +708,13 @@ end;
 caseTSC2 = 0;
 
 numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
-cdnaLookup = zeros(numCdnaRows, 8);
+cdnaLookup = zeros(numCdnaRows, 12);
 exonData = TSC1_exon_coord_flush;
 cdnaIndex = numCdnaRows;
 
 if(caseTSC2 == 1);
     numCdnaRows = TSC2_exon_coord_flush(41,4) - TSC2_exon_coord_flush(41,3) + TSC2_exon_coord_flush(41,5);
-    cdnaLookup = zeros(numCdnaRows, 8);
+    cdnaLookup = zeros(numCdnaRows, 12);
     exonData = TSC2_exon_coord_flush;
     cdnaIndex = 1;
 end;
@@ -764,6 +764,17 @@ for i=1:size(cdnaLookup,1);
 
         codonStr(codonInd) = num2str(j);
         cdnaLookup(i, 4+j) = str2double(codonStr);
+
+        val1 = str2double(codonStr(1));
+        val2 = str2double(codonStr(2));
+        val3 = str2double(codonStr(3));
+
+        for row=1:size(nt_aa_transl, 1);
+            if(nt_aa_transl(row, 1) == val1 && nt_aa_transl(row, 2) == val2 && nt_aa_transl(row, 3) == val3);
+                cdnaLookup(i, 8+j) = nt_aa_transl(row, 4);
+                break
+            end;
+        end;
     end;
 
 end;
