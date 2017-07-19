@@ -707,12 +707,6 @@ for i=1:numFilterRows;
     
 end;
 
-%% Section exportformatfilter
-% Here, we export the data in the formatfilter table to an excel document
-
-%excelfile = 'datatables.xlsx';
-%xlswrite(excelfile, formatfilter);
-
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
 
@@ -860,6 +854,12 @@ end;
 % ... and so on for each of the samples
 
 formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) formatfilterexons(:, 11:end)];
+
+%% Section exportformatfilter
+% Here, we export the data in the formatfilter table to an excel document
+
+excelfile = 'aafilterdata.csv';
+dlmwrite(excelfile, formatfilteraa, 'precision', 9);
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
