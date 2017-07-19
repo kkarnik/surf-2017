@@ -16,6 +16,16 @@ import shutil
 #FLCN 17:17113000-17143000
 #FH
 class Application(Frame):
+    # To run this application, the following files are needed:
+    # numSamples.txt
+    # genomewithinst.txt
+    # merger.py
+    # v12-q50.py
+    # readcount.py
+    # igv_session.xml
+    # IGVBatch.py
+    # Analyzer.py (which is this file itself)
+
     #@profile
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -86,7 +96,8 @@ class Application(Frame):
         Runs Matlab_commands_3_16_GenomADupdate.m script
         '''
         subprocess.call(['matlab -nojvm -r Matlab_commands_3_16_GenomADupdate'], shell=True)
-        #print('Matlab script completed. Open the file for variables.')
+        print('Matlab script completed. Open the file aafilterdata.csv\n')
+        exit()
 
     #@profile
     def combinefunctions(self):
@@ -198,11 +209,11 @@ class Application(Frame):
         #another old path was "/Users/guest/Desktop/SIS0009b"
         #path = "/Volumes/Untitled 1/TSC1-TSC2 SCB0002p"
 
-        path = "/Users/guest/Desktop/Karthik"
+        #path = "/Users/guest/Desktop/Karthik"
 
-        #path = os.path.realpath(__file__)
+        path = os.path.realpath(__file__)
 
-        #path = path.replace('/Analyzer.py', '')
+        path = path.replace('/Analyzer.py', '')
 
         dirs = os.listdir( path )
 

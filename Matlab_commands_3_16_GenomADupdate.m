@@ -742,10 +742,24 @@ for i=1:size(exonData, 1);
             cdnaLookup(rowIndex, 1) = cdnaIndex;
             cdnaLookup(rowIndex, 2) = val;            
             
+            %%%
+            
             [row, col] = find(refSeq == val);
             if ~(isempty(row) && isempty(col));
                 cdnaLookup(rowIndex, 3) = refSeq(row, col + 1);
             end;
+            
+            %%%
+            
+            %{
+            
+            % If TSC1, use this:
+            cdnaLookup(rowIndex, 3) = TSC1_nt_coding(rowIndex, 1);
+            
+            % If TSC2, use this:
+            % cdnaLookup(rowIndex, 3) = TSC2_nt_coding(rowIndex, 1); 
+            
+            %}
             
             aaNum = ceil(cdnaIndex / 3);
             cdnaLookup(rowIndex, 4) = aaNum;
@@ -1132,7 +1146,6 @@ j=j-1;
 
 %% Section T1T2SNPs
 %open a file of common TSC1/TSC2 SNPs from the exome variant server
-
 
 %now work on indicator col5 -
 %value indicates the allele frequency if a known SNP per 1000g data and per
