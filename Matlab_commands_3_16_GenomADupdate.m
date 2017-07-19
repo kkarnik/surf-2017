@@ -734,7 +734,7 @@ exonData = TSC1_exon_coord_flush;
 cdnaIndex = numCdnaRows;
 
 if(caseTSC2 == 1);
-    numCdnaRows = TSC2_exon_coord_flush(41,4) - TSC2_exon_coord_flush(41,3) + TSC2_exon_coord_flush(41,5);
+    numCdnaRows = TSC2_exon_coord_flush(42,4) - TSC2_exon_coord_flush(42,3) + TSC2_exon_coord_flush(42,5);
     cdnaLookup = zeros(numCdnaRows, 12);
     exonData = TSC2_exon_coord_flush;
     cdnaIndex = 1;
