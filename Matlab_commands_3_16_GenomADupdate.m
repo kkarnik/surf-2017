@@ -706,7 +706,6 @@ for i=1:numFilterRows;
     end;
     
 end;
-
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
 
@@ -742,24 +741,11 @@ for i=1:size(exonData, 1);
             cdnaLookup(rowIndex, 1) = cdnaIndex;
             cdnaLookup(rowIndex, 2) = val;            
             
-            %%%
-            
-            [row, col] = find(refSeq == val);
-            if ~(isempty(row) && isempty(col));
-                cdnaLookup(rowIndex, 3) = refSeq(row, col + 1);
-            end;
-            
-            %%%
-            
-            %{
-            
-            % If TSC1, use this:
-            cdnaLookup(rowIndex, 3) = TSC1_nt_coding(rowIndex, 1);
+            % If TSC1, use this:           
+            cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);
             
             % If TSC2, use this:
             % cdnaLookup(rowIndex, 3) = TSC2_nt_coding(rowIndex, 1); 
-            
-            %}
             
             aaNum = ceil(cdnaIndex / 3);
             cdnaLookup(rowIndex, 4) = aaNum;
@@ -775,23 +761,42 @@ for i=1:size(exonData, 1);
     end;
 end;
 
-for i=1:size(cdnaLookup,1);   
+% FOR TSC2, do this:
+% for i=1:size(cdnaLookup, 1);
+for i=size(cdnaLookup,1):-1:1;
     codonInd = mod(i, 3);
     
-    if(codonInd == 1);
+    if(codonInd == 0);
         firstNTval = num2str(cdnaLookup(i, 3));
-        secondNTval = num2str(cdnaLookup(i + 1, 3));
-        thirdNTval = num2str(cdnaLookup(i + 2, 3));
+        secondNTval = num2str(cdnaLookup(i - 1, 3));
+        thirdNTval = num2str(cdnaLookup(i - 2, 3));
+        
+        % For TSC2, do i, i+1, i+2 rather than -
     end;
     
     codonStr = strcat(firstNTval, secondNTval, thirdNTval);
     
-    for j=1:4;
+    for j=1:4;        
+        if(codonInd == 0);
+            codonStr(1) = num2str(j);
+        elseif(codonInd == 2);
+            codonStr(2) = num2str(j);
+        elseif(codonInd == 1);
+            codonStr(3) = num2str(j);
+        end;
+        
+        %{
+        
+        USE FOR TSC2 CASE:
+        
         if(codonInd == 0);
             codonInd = 3;
         end;
         
         codonStr(codonInd) = num2str(j);
+        
+        %}
+        
         cdnaLookup(i, 4+j) = str2double(codonStr);
         
         % Get the nucleotide values in the codon
@@ -1280,11 +1285,14 @@ for i=1:j;
                     if rem(workgc(i,10)-1,3)==0;
                         tnt1=ntmtn2;
                         
-                    % If the nucleotide position is in the middle of codon,
-                    % then do the following
                     else
+                        % If the nucleotide position is in the middle of codon,
+                        % then do the following
                         if rem(workgc(i,10)-1,3)==1;
                             tnt2=ntmtn2;
+                            
+                        % If the nucleotide position is at the end of
+                        % codon, then do the following
                         else
                             tnt3=ntmtn2;
                         end;
