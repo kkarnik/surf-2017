@@ -926,6 +926,8 @@ for i=1:workbRows;
     
     if(filterFlag == 1);
         for m=1:s;
+            % Here the indel frequency is the maximum of the frequencies of
+            % the indels in the two reads (forward and reverse)
             workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
             workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
         end;
@@ -956,6 +958,22 @@ end;
 filterIndelsWithoutZeros = filterIndels(any(filterIndels, 2), :);
 
 %% Section formatfilterindels
+% The columns in this formatted output are:
+% 1) chromosome
+% 2) nt
+% 3) 0 (but an excel macro will populate it with chr:nt)
+% 4) refnt
+% 5) max indel freq
+% 6) num samples >= cutoff indel freq
+% 7) Exon number (or nearest exon)
+% 8) Position from nearest exon
+% 9) cDNA number (c#)
+% 10) amino acid index number (aa#)
+% 11) refnt letter (A G C T = 1 2 3 4)
+% 12) Num indels for sample 1
+% 13) Num indels for sample 2 ...
+% 14) Indel freq for sample 1
+% 15) Indel freq for sample 2 ...
 
 indelRows = size(filterIndelsWithoutZeros, 1);
 
@@ -1041,7 +1059,7 @@ for i=1:size(workc,1);
     end;
 end;
 
-%isolate read counts in f and r here
+%isolate read counts in fowrard and reverse here
 temp=zeros(k,s*2);
 for i=1:k;
     temp(i,1:2)=workca(i,1:2);
@@ -1122,7 +1140,6 @@ for i=1:k;
                 else
                 end;
                 base2freq=0;
-
             end;
 
             for j=3:6;
