@@ -17,6 +17,10 @@ load('matlab_input_genomeADcoord.mat');
 % the python part of the pipeline
 minfreq = dlmread('minfreq.txt');
 
+% Load the minimum indel frequency that was inputted by the user in the
+% python part of the pipeline
+minIndelFreq = dlmread('minIndelFreq.txt');
+
 % Load the minimum read count that was inputted by the user in the python
 % part of the pipeline
 
@@ -426,7 +430,6 @@ for i=1:workbRows;
         else
             workNewRefWithVals(i, 26 * s + 2 + n) = maxLetter;
         end; 
-        
     end;
 end;
 
@@ -607,28 +610,26 @@ for i=1:numFilterRows;
     
 end;
 
-%% Section formatfilterexons
+%% Section exonLookup
+% Create lookup table that contains the data for the exon number and
+% distance from nearest exon for all possible nt values from the reference
 
-% Now column 9 represents the exon number at that nucleotide position and
-% column 10 represents the distance that this nucleotide position is from
-% the nearest exon. Columns 11, 12, etc. represent the variant allele 
-% frequency for each for the samples. Exon number of 0 means that this 
-% nucleotide is not in an exonic region.
-formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
+exonLookup = [workNewRef(:, 1:2) zeros(size(workNewRef, 1), 2)];
 
-numExons = size(T1T2exonsflush, 1);
+for i=1:size(exonLookup, 1);
 
-numT1Exons = 0;
+    numExons = size(T1T2exonsflush, 1);
 
-for i=1:numExons;
-    if(T1T2exonsflush(i, 1) == 9);
-        numT1Exons = numT1Exons + 1;
+    numT1Exons = 0;
+
+    for j=1:numExons;
+        if(T1T2exonsflush(j, 1) == 9);
+            numT1Exons = numT1Exons + 1;
+        end;
     end;
-end;
 
-numT2Exons = numExons - numT1Exons;
-
-for i=1:numFilterRows;
+    numT2Exons = numExons - numT1Exons;
+    
     foundFlag = 0;
     rowNum = 0;
     % For TSC1, we have:
@@ -641,8 +642,8 @@ for i=1:numFilterRows;
         index = index + 1;
         
         % Make sure the chr numbers match up
-        if(formatfilter(i, 1) == T1T2exonsflush(index, 1));
-            if(formatfilter(i, 2) >= T1T2exonsflush(index, 3) && formatfilter(i, 2) <= T1T2exonsflush(index, 4));
+        if(exonLookup(i, 1) == T1T2exonsflush(index, 1));
+            if(exonLookup(i, 2) >= T1T2exonsflush(index, 3) && exonLookup(i, 2) <= T1T2exonsflush(index, 4));
                 rowNum = index;
                 foundFlag = 1;
             end;            
@@ -651,7 +652,7 @@ for i=1:numFilterRows;
     
     % Case when the nucleotide position is in an exonic region
     if(rowNum ~= 0);
-        formatfilterexons(i, 9) = T1T2exonsflush(rowNum, 2);
+        exonLookup(i, 3) = T1T2exonsflush(rowNum, 2);
         
     % Case when the nucleotide position is not in an exonic region
     else
@@ -661,8 +662,8 @@ for i=1:numFilterRows;
 
         % Put all the distances in a table
         for j=1:numT1Exons;
-            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilter(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilter(i, 2));
+            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
         end;
         
         % Find the absolute value of the distance from the nearest exon
@@ -670,12 +671,12 @@ for i=1:numFilterRows;
         [row, col] = find(distanceVals == minElement);
 
         % Get the actual distance from the nearest exon
-        distVal = T1T2exonsflush(row, col + 2) - formatfilter(i, 2);
+        distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
         
         % Closest exon
-        formatfilterexons(i, 9) = T1T2exonsflush(row, 2);
+        exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
         
-        formatfilterexons(i, 10) = distVal;
+        exonLookup(i, 4) = distVal;
         
         % TSC2 CASE, copy and paste this when using TSC2:
         %{
@@ -685,8 +686,8 @@ for i=1:numFilterRows;
         exonInd = numT1Exons;
         for j=1:numT2Exons;
             exonInd = exonInd + 1;
-            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - formatfilter(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - formatfilter(i, 2));
+            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - exonLookup(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - exonLookup(i, 2));
         end;
         
         % Find the absolute value of the distance from the nearest exon
@@ -696,15 +697,46 @@ for i=1:numFilterRows;
         row = row + numT1Exons;
         
         % Get the actual distance from the nearest exon
-        distVal = formatfilter(i, 2) - T1T2exonsflush(row, col + 2);
+        distVal = exonLookup(i, 2) - T1T2exonsflush(row, col + 2);
         
-        formatfilterexons(i, 9) = T1T2exonsflush(row, 2);
+        exonLookup(i, 3) = T1T2exonsflush(row, 2);
         
-        formatfilterexons(i, 10) = distVal;
+        exonLookup(i, 4) = distVal;
         %}
         
     end;
+
+end;
+
+%% Section formatfilterexons
+
+% Now column 9 represents the exon number at that nucleotide position and
+% column 10 represents the distance that this nucleotide position is from
+% the nearest exon. Columns 11, 12, etc. represent the variant allele 
+% frequency for each for the samples. Exon number of 0 means that this 
+% nucleotide is not in an exonic region.
+formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
+
+%numExons = size(T1T2exonsflush, 1);
+
+%numT1Exons = 0;
+
+%{
+for i=1:numExons;
+    if(T1T2exonsflush(i, 1) == 9);
+        numT1Exons = numT1Exons + 1;
+    end;
+end;
+%}
+%numT2Exons = numExons - numT1Exons;
+
+for i=1:numFilterRows;
+    [row, col] = find(exonLookup == formatfilterexons(i,2));
     
+    formatfilterexons(i, 9) = exonLookup(row, 3);
+    
+    formatfilterexons(i, 10) = exonLookup(row, 4);
+
 end;
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
@@ -879,6 +911,162 @@ formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) formatfilterexons
 
 excelfile = 'aafilterdata.csv';
 dlmwrite(excelfile, formatfilteraa, 'precision', 9);
+
+%% Section workNewRefIndels
+
+workNewRefIndels = [workNewRefWithVals(:, 1) workNewRefWithVals(:, end-s-1:end-s) zeros(workbRows, s * 2)];
+
+for i=1:workbRows;
+    filterFlag = 0;
+    for n=1:s;
+        if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 && workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
+            filterFlag = 1;
+        end;
+    end;
+    
+    if(filterFlag == 1);
+        for m=1:s;
+            workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
+            workNewRefIndels(i,3+m+s) = workNewRefWithVals(i, 25 + (26 * (m - 1)));
+        end;
+    end;
+end;
+
+%% Section filterIndels
+
+filterIndels = zeros(size(workNewRefIndels, 1), size(workNewRefIndels, 2));
+index = 1;
+for i=1:workbRows;
+    keepFlag = 0;
+    
+    for n=1:s;
+        if(workNewRefIndels(i, 3 + n) ~= 0 || workNewRefIndels(i, 3 + n + s) ~= 0);
+            keepFlag = 1;
+        end;
+    end;
+    
+    if(keepFlag == 1);
+        filterIndels(index, :) = workNewRefIndels(i, :);
+        index = index + 1;
+
+    end;
+    
+end;
+
+filterIndelsWithoutZeros = filterIndels(any(filterIndels, 2), :);
+
+%% Section formatfilterindels
+
+indelRows = size(filterIndelsWithoutZeros, 1);
+
+formatfilterindels = [filterIndelsWithoutZeros(:, 1:2) zeros(indelRows, 1) filterIndelsWithoutZeros(:, 3) zeros(indelRows, 7) filterIndelsWithoutZeros(:, 4:end)];
+
+for i=1:indelRows;
+    formatfilterindels(i, 5) = max(formatfilterindels(i, 12+s:end));
+    
+    numSamplesAboveCutoff = 0;
+    
+    for n=1:s;
+        if(formatfilterindels(i, 11+n) >= 2 && formatfilterindels(i, 11+n+s) >= minIndelFreq);
+            numSamplesAboveCutoff = numSamplesAboveCutoff + 1;
+        end;
+    end;
+    
+    formatfilterindels(i, 6) = numSamplesAboveCutoff;
+    
+    foundFlag = 0;
+    rowNum = 0;
+    % For TSC1, we have:
+    index = 0;
+
+    % For TSC2, we have:
+    %index = numT1Exons;
+
+    while(index < numExons && foundFlag == 0);
+        index = index + 1;
+
+        % Make sure the chr numbers match up
+        if(formatfilterindels(i, 1) == T1T2exonsflush(index, 1));
+            if(formatfilterindels(i, 2) >= T1T2exonsflush(index, 3) && formatfilterindels(i, 2) <= T1T2exonsflush(index, 4));
+                rowNum = index;
+                foundFlag = 1;
+            end;            
+        end;
+    end;
+
+    % Case when the nucleotide position is in an exonic region
+    if(rowNum ~= 0);
+        formatfilterindels(i, 7) = T1T2exonsflush(rowNum, 2);
+
+    % Case when the nucleotide position is not in an exonic region
+    else
+        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
+        % TSC2 GENE CASE *************************************************
+        distanceVals = zeros(numT1Exons, 2);           
+
+        % Put all the distances in a table
+        for j=1:numT1Exons;
+            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilterindels(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilterindels(i, 2));
+        end;
+
+        % Find the absolute value of the distance from the nearest exon
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+
+        % Get the actual distance from the nearest exon
+        distVal = T1T2exonsflush(row, col + 2) - formatfilterindels(i, 2);
+
+        % Closest exon
+        formatfilterindels(i, 7) = T1T2exonsflush(row, 2);
+
+        formatfilterindels(i, 8) = distVal;
+
+        % TSC2 CASE, copy and paste this when using TSC2:
+        %{
+        distanceVals = zeros(numT2Exons, 2);           
+
+        % Put all the distances in a table
+        exonInd = numT1Exons;
+        for j=1:numT2Exons;
+            exonInd = exonInd + 1;
+            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - formatfilterindels(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - formatfilterindels(i, 2));
+        end;
+
+        % Find the absolute value of the distance from the nearest exon
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+
+        row = row + numT1Exons;
+
+        % Get the actual distance from the nearest exon
+        distVal = formatfilterindels(i, 2) - T1T2exonsflush(row, col + 2);
+
+        formatfilterindels(i, 7) = T1T2exonsflush(row, 2);
+
+        formatfilterindels(i, 8) = distVal;
+        %}
+
+    end;
+    
+    [row, col] = find(cdnaLookup == formatfilterindels(i, 2));
+    
+    if ~(isempty(row) && isempty(col));
+        formatfilterindels(i, 9) = cdnaLookup(row, 1);
+        
+        formatfilterindels(i, 10) = cdnaLookup(row, 4);
+        
+    end;
+    
+end;
+
+%% Section export formatfilterindels
+% Here, we export the data in the formatfilterindels table to an csv document
+
+excelfile2 = 'formatfilterindels.csv';
+dlmwrite(excelfile2, formatfilterindels, 'precision', 9);
+
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
