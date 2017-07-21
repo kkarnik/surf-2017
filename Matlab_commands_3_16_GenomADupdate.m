@@ -927,7 +927,7 @@ for i=1:workbRows;
     if(filterFlag == 1);
         for m=1:s;
             workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
-            workNewRefIndels(i,3+m+s) = workNewRefWithVals(i, 25 + (26 * (m - 1)));
+            workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
         end;
     end;
 end;
