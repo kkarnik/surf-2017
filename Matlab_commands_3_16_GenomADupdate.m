@@ -974,81 +974,11 @@ for i=1:indelRows;
     
     formatfilterindels(i, 6) = numSamplesAboveCutoff;
     
-    foundFlag = 0;
-    rowNum = 0;
-    % For TSC1, we have:
-    index = 0;
-
-    % For TSC2, we have:
-    %index = numT1Exons;
-
-    while(index < numExons && foundFlag == 0);
-        index = index + 1;
-
-        % Make sure the chr numbers match up
-        if(formatfilterindels(i, 1) == T1T2exonsflush(index, 1));
-            if(formatfilterindels(i, 2) >= T1T2exonsflush(index, 3) && formatfilterindels(i, 2) <= T1T2exonsflush(index, 4));
-                rowNum = index;
-                foundFlag = 1;
-            end;            
-        end;
-    end;
-
-    % Case when the nucleotide position is in an exonic region
-    if(rowNum ~= 0);
-        formatfilterindels(i, 7) = T1T2exonsflush(rowNum, 2);
-
-    % Case when the nucleotide position is not in an exonic region
-    else
-        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
-        % TSC2 GENE CASE *************************************************
-        distanceVals = zeros(numT1Exons, 2);           
-
-        % Put all the distances in a table
-        for j=1:numT1Exons;
-            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - formatfilterindels(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - formatfilterindels(i, 2));
-        end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        % Get the actual distance from the nearest exon
-        distVal = T1T2exonsflush(row, col + 2) - formatfilterindels(i, 2);
-
-        % Closest exon
-        formatfilterindels(i, 7) = T1T2exonsflush(row, 2);
-
-        formatfilterindels(i, 8) = distVal;
-
-        % TSC2 CASE, copy and paste this when using TSC2:
-        %{
-        distanceVals = zeros(numT2Exons, 2);           
-
-        % Put all the distances in a table
-        exonInd = numT1Exons;
-        for j=1:numT2Exons;
-            exonInd = exonInd + 1;
-            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - formatfilterindels(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - formatfilterindels(i, 2));
-        end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        row = row + numT1Exons;
-
-        % Get the actual distance from the nearest exon
-        distVal = formatfilterindels(i, 2) - T1T2exonsflush(row, col + 2);
-
-        formatfilterindels(i, 7) = T1T2exonsflush(row, 2);
-
-        formatfilterindels(i, 8) = distVal;
-        %}
-
-    end;
+    [row, col2] = find(exonLookup == formatfilterindels(i, 2));
+    
+    formatfilterindels(i, 7) = exonLookup(row, 3);
+    
+    formatfilterindels(i, 8) = exonLookup(row, 4);
     
     [row, col] = find(cdnaLookup == formatfilterindels(i, 2));
     
