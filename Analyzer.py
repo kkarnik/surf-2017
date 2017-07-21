@@ -58,6 +58,13 @@ class Application(Frame):
         E3 = Entry(self, bd =5)
         E3.pack(side=LEFT)
 
+
+        L4 = Label(self, text="Minimum indel frequency:")
+        L4.pack(side=LEFT)
+        global E4
+        E4 = Entry(self, bd =5)
+        E4.pack(side=LEFT)
+
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
@@ -91,6 +98,16 @@ class Application(Frame):
         minreadcountfile.close()
 
 
+    def saveindelfreq(self):
+        '''
+        Saves the input value for the minimum indel frequency into a text file, which will be imported as a variable
+        in matlab.
+        '''
+        minIndelFreq = E4.get()
+        minIndelFreqFile = open("minIndelFreq.txt", "w")
+        minIndelFreqFile.write("%d" % int(minIndelFreq))
+        minIndelFreqFile.close()
+
     def runmatlab(self):
         '''
         Runs Matlab_commands_3_16_GenomADupdate.m script
@@ -109,6 +126,7 @@ class Application(Frame):
 
         self.saveminfreq()
         self.saveminreadcount()
+        self.saveindelfreq()
 
         self.namereader()
 
