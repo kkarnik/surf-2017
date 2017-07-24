@@ -929,7 +929,8 @@ for i=1:workbRows;
             % Here the indel frequency is the maximum of the frequencies of
             % the indels in the two reads (forward and reverse)
             workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
-            workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
+            %workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
+            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / ((workNewRefWithVals(i, 8 + (26 * (m - 1)))) + (workNewRefWithVals(i, 18 + (26 * (m - 1)))));
         end;
     end;
 end;
@@ -1059,7 +1060,7 @@ for i=1:size(workc,1);
     end;
 end;
 
-%isolate read counts in fowrard and reverse here
+%isolate read counts in forward and reverse here
 temp=zeros(k,s*2);
 for i=1:k;
     temp(i,1:2)=workca(i,1:2);
