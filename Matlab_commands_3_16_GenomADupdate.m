@@ -523,33 +523,6 @@ filterwithoutzeros = filternewref(any(filternewref, 2), :);
 %% Section import Genome AD refnt and variant info
 genomeADalts = dlmread('reformatgenomeAD.txt');
 numLetters = size(genomeADalts, 1);
-%{
-genomeADnumValues = zeros(numLetters, 1);
-
-for i=1:numLetters;
-    if(length(genomeADalts{i}) == 1);
-        if(genomeADalts{i} == 'A');
-            genomeADnumValues(i, 1) = 1;
-            
-        elseif(genomeADalts{i} == 'G');
-            genomeADnumValues(i, 1) = 2;
-
-        elseif(genomeADalts{i} == 'C');
-            genomeADnumValues(i, 1) = 3;
-            
-        elseif(genomeADalts{i} == 'T');
-            genomeADnumValues(i, 1) = 4;
-            
-        end;
-            
-    else
-        genomeADnumValues(i, 1) = 5;
-    end;
-end;
-%}
-% Change the letters to 1 2 3 4 = A G C T and denote change to multiple
-% letters by 5 (use length and {} to determine the length of the string
-% stored in a cell
 
 genomeADposns = dlmread('genomeADposns.txt');
 numPosns = size(genomeADposns, 1);
@@ -1114,9 +1087,6 @@ endInd = 135820020;
 %index = 2097990;
 %endInd = 2138713;
 
-% For TSC2, use this:
-%while(index <= 2138713);
-
 % For TSC1, use this:
 while(index < endInd);
     
@@ -1183,19 +1153,17 @@ for i=1:binListRows;
             end;
         end;
         
-        if(i == ceil((135820020-135766735)/binSize) - 1)
+        if(i == binListRows);
             for n=1:s;
                 % For TSC2, use a different number, calculate this later
-                binList(i, 4+n) = totReads(1, n) / (binList(ceil((2138713-2097990)/binSize), 4) - binList(ceil((2138713-2097990)/binSize), 3) + 1);
+                binList(i, 4+n) = totReads(1, n) / (binList(end, 4) - binList(end, 3) + 1);
                 
             end;
         else
             for n=1:s;
                 binList(i, 4+n) = totReads(1, n) / binSize;
             end;
-        end;
-
-        
+        end;        
     end;
 end;
 
