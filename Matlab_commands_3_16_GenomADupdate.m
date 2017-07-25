@@ -305,6 +305,47 @@ for i=1:lenRef;
     refSeq(i, 2) = ntVals(i);
 end;
 
+%% Section noiseRefSeq
+% Identify the poly-A sequences and flag them in the reference (run of
+% consecutive A's or T's)
+
+noiseRefSeq = [refSeq zeros(lenRef, 1)];
+
+locListA = find(conv(double(ntVals == 1), ones(10, 1), 'valid') == 10);
+
+locListA = transpose(locListA([true diff(locListA) >= 10]));
+
+locListT = find(conv(double(ntVals == 4), ones(10, 1), 'valid') == 10);
+
+locListT = transpose(locListT([true diff(locListT) >= 10]));
+
+locList = sort([locListA; locListT]);
+
+inSeqFlag = 0;
+
+for i=1:lenRef;
+    % Get that the letter being repeated is either 1 or 4 (representing A
+    % or T respectively)
+    if(ismember(i, locList) == 1);    
+        repeatedVal = refSeq(i, 2);
+        inSeqFlag = 1;
+    end;
+    
+    if(i ~= lenRef);
+        if(refSeq(i, 2) == refSeq(i+1, 2) && inSeqFlag == 1);
+            noiseRefSeq(i, 3) = 1;
+        elseif(inSeqFlag == 1);
+            noiseRefSeq(i, 3) = 1;
+            inSeqFlag = 0;
+        else
+            inSeqFlag = 0;
+        end;
+    end;
+    
+    
+    
+end;
+
 %% Section copyWorkb
 % Align the reference human genome (hg-19 on the UCSC database) with the nt
 % positions considered in the table. The last two columns of the copyWorkb
