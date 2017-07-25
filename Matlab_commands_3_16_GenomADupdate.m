@@ -341,9 +341,6 @@ for i=1:lenRef;
             inSeqFlag = 0;
         end;
     end;
-    
-    
-    
 end;
 
 %% Section copyWorkb
@@ -1051,11 +1048,38 @@ for i=1:indelRows;
     
 end;
 
+%% Section indelsPolyA
+% Here we display to the user whether the indel took place at or near a
+% polyA sequence (+/- 5 bp away from a polyA)
+
+indelsPolyA = [formatfilterindels(:, 1:(size(formatfilterindels, 2) - 2*s)) zeros(indelRows, 1) formatfilterindels(:, (size(formatfilterindels, 2) - 2*s + 1):end)];
+
+for i=1:indelRows;
+   [row, col] = find(formatfilterindels(i, 2) == refSeq);
+   
+   if(row <= lenRef - 5);
+       if(noiseRefSeq(row - 5, 3) == 1 ...
+               || noiseRefSeq(row - 4, 3) == 1 ...
+               || noiseRefSeq(row - 3, 3) == 1 ...
+               || noiseRefSeq(row - 2, 3) == 1 ...
+               || noiseRefSeq(row - 1, 3) == 1 ... 
+               || noiseRefSeq(row, 3) == 1 ...
+               || noiseRefSeq(row + 1, 3) == 1 ...
+               || noiseRefSeq(row + 2, 3) == 1 ...
+               || noiseRefSeq(row + 3, 3) == 1 ...
+               || noiseRefSeq(row + 4, 3) == 1 ...
+               || noiseRefSeq(row + 5, 3) == 1);
+                
+           indelsPolyA(i, 12) = 1;
+       end;
+   end;
+end;
+
 %% Section export formatfilterindels
 % Here, we export the data in the formatfilterindels table to an csv document
 
 excelfile2 = 'formatfilterindels.csv';
-dlmwrite(excelfile2, formatfilterindels, 'precision', 9);
+dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 
 
 %% Section workc
@@ -1899,3 +1923,4 @@ end;
 % Uncomment the next line when running with the "Run matlab script" button
 % in the Python tkinter widget
 %quit()
+%}
