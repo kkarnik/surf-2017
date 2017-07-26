@@ -1061,7 +1061,7 @@ dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 %%%%%%%%%%%%%%%%%%%%%
 
 %% Section binList
-% Creates list of length-100 bins in TSC1/TSC2,
+% Creates list of fixed-length bins in TSC1/TSC2,
 % Columns of binList are as follows:
 % 1) bin index
 % 2) start nt for the bin
@@ -1083,7 +1083,7 @@ index = 135766735;
 endInd = 135820020;
 
 % For TSC2, use this:
-%binInd = ceil((135820020-135766735)/binSize);
+%binInd = ceil((135820020-135766735)/binSize) + 1;
 %index = 2097990;
 %endInd = 2138713;
 
@@ -1103,7 +1103,7 @@ while(index < endInd);
         binList(binInd, 4) = endInd;
     else
         binList(binInd, 4) = index + binSize - 1;
-    end;    
+    end;
     
     index = index + binSize;
     binInd = binInd + 1;
@@ -1127,7 +1127,7 @@ for i=1:binListRows;
             end;
         end;
         
-        if(i == ceil((135820020-135766735)/binSize) - 1)
+        if(i == ceil((135820020-135766735)/binSize))
             for n=1:s;
                 % For TSC2, use a different number, calculate this later
                 binList(i, 4+n) = totReads(1, n) / (binList(ceil((135820020-135766735)/binSize), 4) - binList(ceil((135820020-135766735)/binSize), 3) + 1);
