@@ -355,6 +355,20 @@ copyWorkb = workb;
 
 copyWorkb = [copyWorkb refSeqNew];
 
+[row, col] = find(refSeq == copyWorkb(1, 2));
+
+row = row(1);
+col = col(1);
+
+for i=1:workbRows;
+    copyWorkb(i, end) = refSeq(row, col+1);
+    copyWorkb(i, end-1) = refSeq(row, col);
+    row = row + 1;
+
+end;
+
+% If the gene is non-contiguous, then use this (which is slower):
+%{
 for i=1:workbRows;
     [row, col] = find(refSeq == copyWorkb(i, 2));
     if ~(isempty(row) && isempty(col));
@@ -363,6 +377,7 @@ for i=1:workbRows;
     else
     end;
 end;
+%}
 
 %% Section workNewRef
 % Use the reference human genome sequence in order to determine the number
@@ -1081,6 +1096,7 @@ excelfile2 = 'formatfilterindels.csv';
 dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 
 
+
 %%%%%%%%%%%%%%%%%%%%%
 
 %% Section binList
@@ -1098,7 +1114,7 @@ binSize = 200;
 
 binListRows = ceil((2138713-2097990)/binSize) + ceil((135820020-135766735)/binSize);
 
-binList = zeros(binListRows, 4+s);
+binList = zeros(binListRows, 5+s);
 
 % For TSC1, use this:
 binInd = 1;
@@ -1155,12 +1171,19 @@ for i=1:binListRows;
         if(i == ceil((135820020-135766735)/binSize))
             for n=1:s;
                 % For TSC2, use a different number, calculate this later
-                binList(i, 4+n) = totReads(1, n) / (binList(ceil((135820020-135766735)/binSize), 4) - binList(ceil((135820020-135766735)/binSize), 3) + 1);
+                binList(i, 5+n) = totReads(1, n) / (binList(ceil((135820020-135766735)/binSize), 4) - binList(ceil((135820020-135766735)/binSize), 3) + 1);
 
             end;
         else
             for n=1:s;
-                binList(i, 4+n) = totReads(1, n) / binSize;
+                binList(i, 5+n) = totReads(1, n) / binSize;
+            end;
+        end;
+        
+        for k=1:24;
+            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
+                binList(i, 5) = T1T2exonsflush(k, 2);
+                break;
             end;
         end;
 
@@ -1183,18 +1206,28 @@ for i=1:binListRows;
         if(i == binListRows);
             for n=1:s;
                 % For TSC2, use a different number, calculate this later
-                binList(i, 4+n) = totReads(1, n) / (binList(end, 4) - binList(end, 3) + 1);
+                binList(i, 5+n) = totReads(1, n) / (binList(end, 4) - binList(end, 3) + 1);
 
             end;
         else
             for n=1:s;
-                binList(i, 4+n) = totReads(1, n) / binSize;
+                binList(i, 5+n) = totReads(1, n) / binSize;
             end;
         end;
+        
+        for k=25:67;
+            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
+                binList(i, 5) = T1T2exonsflush(k, 2);
+                break;
+            end;
+        end;
+        
     end;
 end;
 
 %%%%%%%%%%%%%%%%%%%%%
+
+
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
