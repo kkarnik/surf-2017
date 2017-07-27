@@ -495,7 +495,7 @@ for i=1:workbRows;
         % Get the total number of counts
         forwardcount = workNewRefWithVals(i, 8 + 26 * (n - 1));
         reversecount = workNewRefWithVals(i, 18 + 26 * (n-1));
-        %totalCounts = forwardcount + reversecount;
+        totalCounts = forwardcount + reversecount;
         %indelFreq = workNewRefWithVals(i, 25 + 26 * (n - 1));
 
         % Count the number of samples which do not meet the threshhold
@@ -912,11 +912,33 @@ end;
 % 12) amino acid index number
 % 13) ref aa
 % 14) mut aa
+% 15) is the sample +/- 5 bp away from a polyA sequence?
 % 15) Variant AF for Sample 1
 % 16) "          for Sample 2
 % ... and so on for each of the samples
 
-formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) formatfilterexons(:, 11:end)];
+formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) zeros(size(varCodons, 1), 1) formatfilterexons(:, 11:end)];
+
+for i=1:size(varCodons, 1);
+    [row, col] = find(formatfilteraa(i, 2) == noiseRefSeq);
+    
+    if(row <= lenRef - 5);
+        if(noiseRefSeq(row - 5, 3) == 1 ...
+               || noiseRefSeq(row - 4, 3) == 1 ...
+               || noiseRefSeq(row - 3, 3) == 1 ...
+               || noiseRefSeq(row - 2, 3) == 1 ...
+               || noiseRefSeq(row - 1, 3) == 1 ...
+               || noiseRefSeq(row, 3) == 1 ...
+               || noiseRefSeq(row + 1, 3) == 1 ...
+               || noiseRefSeq(row + 2, 3) == 1 ...
+               || noiseRefSeq(row + 3, 3) == 1 ...
+               || noiseRefSeq(row + 4, 3) == 1 ...
+               || noiseRefSeq(row + 5, 3) == 1);
+
+           formatfilteraa(i, 15) = 1;
+        end;
+    end;
+end;
 
 %% Section exportformatfilter
 % Here, we export the data in the formatfilter table to an excel document
