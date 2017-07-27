@@ -501,7 +501,7 @@ for i=1:workbRows;
         % Count the number of samples which do not meet the threshhold
         % readcount and minimum allele frequency or do not have at least 1 
         % read in both directions 
-        if((workNewRefWithVals(i, 26 * n ) < minfreq ) || forwardcount < minreadcount || reversecount < minreadcount);
+        if((workNewRefWithVals(i, 26 * n ) < minfreq ) || totalCounts < minreadcount || forwardcount == 0 || reversecount == 0);
             numunsatisfiedsamples = numunsatisfiedsamples + 1;
         else
         end;
@@ -1071,7 +1071,7 @@ dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 % 5) zeros (but will later represent the average read depth across this 
 %    bin for sample 2)
 
-binSize = 100;
+binSize = 200;
 
 binListRows = ceil((2138713-2097990)/binSize) + ceil((135820020-135766735)/binSize);
 
