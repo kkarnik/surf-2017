@@ -659,8 +659,9 @@ mergedGenomeData = [genomeADposns genomeADalts];
 % 5) AF of sample with highest AF
 % 6) Variant nt value for sample with highest variant AF
 % 7) Number of samples at or greater than the threshold variant AF
-% 8) Variant AF for Sample 1
-% 9) "          for Sample 2
+% 8) SNP-AF
+% 9) Variant AF for Sample 1
+% 10) "          for Sample 2
 % ... and so on for each of the samples
 
 numFilterRows = size(filterwithoutzeros, 1);
@@ -746,19 +747,6 @@ end;
 % frequency for each for the samples. Exon number of 0 means that this
 % nucleotide is not in an exonic region.
 formatfilterexons = [formatfilter(:, 1:8) zeros(numFilterRows, 2) formatfilter(:, 9:end)];
-
-%numExons = size(T1T2exonsflush, 1);
-
-%numT1Exons = 0;
-
-%{
-for i=1:numExons;
-    if(T1T2exonsflush(i, 1) == 9);
-        numT1Exons = numT1Exons + 1;
-    end;
-end;
-%}
-%numT2Exons = numExons - numT1Exons;
 
 for i=1:numFilterRows;
 
@@ -1068,7 +1056,7 @@ end;
 % Now the 12th column of the table represents whether or not tht nt
 % position is near a poly-A sequence (1 means that the position is near
 % (+/- 5 bp)) a poly-A sequence
-indelsPolyA = [formatfilterindels(:, 1:(size(formatfilterindels, 2) - 2*s)) zeros(indelRows, 1) formatfilterindels(:, (size(formatfilterindels, 2) - 2*s + 1):end)];
+indelsPolyA = [formatfilterindels(:, 1:(size(formatfilterindels, 2) - 2*s)) zeros(indelRows, 1) formatfilterindels(:, (size(formatfilterindels, 2) - 2*s + 1):end-2)];
 
 for i=1:indelRows;
    [row, col] = find(formatfilterindels(i, 2) == refSeq);
@@ -1096,8 +1084,6 @@ end;
 
 excelfile2 = 'formatfilterindels.csv';
 dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
-
-
 
 %%%%%%%%%%%%%%%%%%%%%
 
