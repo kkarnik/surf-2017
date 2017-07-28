@@ -596,7 +596,7 @@ for i=1:numFilterRows;
     numSamplesGeq = 0;
 
     for n=1:s;
-        if(filterwithoutzeros(i, 26*n) >= minfreq);
+        if(filterwithoutzeros(i, 26*n) > 0);
             numSamplesGeq = numSamplesGeq + 1;
         else
         end;
@@ -1110,7 +1110,7 @@ dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 % 5) zeros (but will later represent the average read depth across this
 %    bin for sample 2)
 
-binSize = 200;
+binSize = 100;
 
 binListRows = ceil((2138713-2097990)/binSize) + ceil((135820020-135766735)/binSize);
 
