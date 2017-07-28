@@ -26,13 +26,11 @@ class Application(Frame):
     # IGVBatch.py
     # Analyzer.py (which is this file itself)
 
-    #@profile
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
 
-    #@profile
     def createWidgets(self):
         '''
         Creates the buttons and entry boxes for the user input for the analysis
@@ -52,12 +50,11 @@ class Application(Frame):
         E2 = Entry(self, bd =5)
         E2.pack(side=LEFT)
 
-        L3 = Label(self, text="Minimum read count in each direction:")
+        L3 = Label(self, text="Minimum read count (total):")
         L3.pack(side=LEFT)
         global E3
         E3 = Entry(self, bd =5)
         E3.pack(side=LEFT)
-
 
         L4 = Label(self, text="Minimum indel frequency:")
         L4.pack(side=LEFT)
@@ -70,7 +67,6 @@ class Application(Frame):
 
         self.matlab = Button(self, text="Run matlab script", command=self.runmatlab)
         self.matlab.pack()
-
 
         #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
@@ -85,7 +81,6 @@ class Application(Frame):
         minfreqfile.write("%0.5f" % float(minfreq))
         minfreqfile.close()
 
-
     def saveminreadcount(self):
         '''
         Saves the input value for the minimum read count into a text file, which will be imported as a variable
@@ -97,7 +92,6 @@ class Application(Frame):
         minreadcountfile.write("%d" % int(minreadcount))
         minreadcountfile.close()
 
-
     def saveindelfreq(self):
         '''
         Saves the input value for the minimum indel frequency into a text file, which will be imported as a variable
@@ -105,7 +99,7 @@ class Application(Frame):
         '''
         minIndelFreq = E4.get()
         minIndelFreqFile = open("minIndelFreq.txt", "w")
-        minIndelFreqFile.write("%d" % int(minIndelFreq))
+        minIndelFreqFile.write("%0.5f" % float(minIndelFreq))
         minIndelFreqFile.close()
 
     def runmatlab(self):
@@ -116,7 +110,6 @@ class Application(Frame):
         print('Matlab script completed. Open the file aafilterdata.csv\n')
         exit()
 
-    #@profile
     def combinefunctions(self):
         '''
         Combines the functions that generate and modify the files in to a
@@ -208,7 +201,6 @@ class Application(Frame):
 
         return((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
 
-    #@profile
     def namereader(self):
         '''
         Reads through a list of files to get the bam files and stores the
@@ -222,10 +214,6 @@ class Application(Frame):
         oldstdout = sys.stdout
         f = open('namelist.txt','w')
         sys.stdout = f
-
-        #prev file location was "/Users/Lana/Documents/Lana/BWH/Dr.Kwiatkowski/CCGD/Submission_Sep2015/Bam files
-        #another old path was "/Users/guest/Desktop/SIS0009b"
-        #path = "/Volumes/Untitled 1/TSC1-TSC2 SCB0002p"
 
         #path = "/Users/guest/Desktop/Karthik"
 
@@ -247,7 +235,6 @@ class Application(Frame):
         numSamplesFile.write("%d" % numSamples)
         numSamplesFile.close()
 
-    #@profile
     def baigenerator(self):
         '''
         Generates .bai files by calling a subprocess which calls the samtools
@@ -258,7 +245,6 @@ class Application(Frame):
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools index '+line3], shell=True)
 
-    #@profile
     def pupgenerator(self):
         '''
         Generates .pup files by calling a subprocess which calls the samtools
@@ -269,18 +255,11 @@ class Application(Frame):
             line3=line2.replace(" ",line2)
             subprocess.call(['samtools mpileup -r '+geneloc+' '+line3+' > '+line3+'.pup'], shell=True)
 
-    #@profile
     def outgenerator(self):
         '''
         Generates .out files by calling a subprocess on the UNIX command line
         that uses the Python script v12-q50.py
         '''
-
-        # Previous version of the function was this:
-        #for line in open('namelist.txt','r'):
-        #    line2=line.replace("\n","")
-        #    line3=line2.replace(" ",line2)
-        #    subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
 
         lineList = open('namelist.txt', 'r')
 
@@ -313,9 +292,6 @@ class Application(Frame):
         pool.close()
         pool.join()
 
-
-
-    #@profile
     def agenerator(self):
         '''
         Generates .a files by calling a subprocess which uses the cut command
@@ -327,9 +303,6 @@ class Application(Frame):
             line3 = line2.replace(" ",line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
 
-    #@profile
-
-    #@profile
     def zeroscreator(self):
         '''
         Populates the mergez.txt file initially with zeroes
