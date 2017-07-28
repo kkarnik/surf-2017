@@ -486,6 +486,108 @@ for i=1:workbRows;
     end;
 end;
 
+%% Section exonLookup
+% Create lookup table that contains the data for the exon number and
+% distance from nearest exon for all possible nt values from the reference
+
+exonLookup = [workNewRef(:, 1:2) zeros(size(workNewRef, 1), 2)];
+
+for i=1:size(exonLookup, 1);
+
+    numExons = size(T1T2exonsflush, 1);
+
+    numT1Exons = 0;
+
+    for j=1:numExons;
+        if(T1T2exonsflush(j, 1) == 9);
+            numT1Exons = numT1Exons + 1;
+        end;
+    end;
+
+    numT2Exons = numExons - numT1Exons;
+
+    foundFlag = 0;
+    rowNum = 0;
+    % For TSC1, we have:
+    index = 0;
+
+    % For TSC2, we have:
+    %index = numT1Exons;
+
+    while(index < numExons && foundFlag == 0);
+        index = index + 1;
+
+        % Make sure the chr numbers match up
+        if(exonLookup(i, 1) == T1T2exonsflush(index, 1));
+            if(exonLookup(i, 2) >= T1T2exonsflush(index, 3) && exonLookup(i, 2) <= T1T2exonsflush(index, 4));
+                rowNum = index;
+                foundFlag = 1;
+            end;
+        end;
+    end;
+
+    % Case when the nucleotide position is in an exonic region
+    if(rowNum ~= 0);
+        exonLookup(i, 3) = T1T2exonsflush(rowNum, 2);
+
+    % Case when the nucleotide position is not in an exonic region
+    else
+        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
+        % TSC2 GENE CASE *************************************************
+        distanceVals = zeros(numT1Exons, 2);
+
+        % Put all the distances in a table
+        for j=1:numT1Exons;
+            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
+        end;
+
+        % Find the absolute value of the distance from the nearest exon
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+
+        % Get the actual distance from the nearest exon
+        distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
+
+        % Closest exon
+        exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
+
+        exonLookup(i, 4) = distVal;
+
+        % TSC2 CASE, copy and paste this when using TSC2:
+        %{
+        distanceVals = zeros(numT2Exons, 2);
+
+        % Put all the distances in a table
+        exonInd = numT1Exons;
+        for j=1:numT2Exons;
+            exonInd = exonInd + 1;
+            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - exonLookup(i, 2));
+            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - exonLookup(i, 2));
+        end;
+
+        % Find the absolute value of the distance from the nearest exon
+        minElement = min(min(distanceVals));
+        [row, col] = find(distanceVals == minElement);
+
+        row = row(1) + numT1Exons;
+
+        % Get the actual distance from the nearest exon
+        distVal = exonLookup(i, 2) - T1T2exonsflush(row, col(1) + 2);
+
+        exonLookup(i, 3) = T1T2exonsflush(row, 2);
+
+        exonLookup(i, 4) = distVal;
+        %}
+
+    end;
+
+end;
+
+%% Section addExonData
+
+workNewRefWithVals = [workNewRefWithVals exonLookup(:, 3:4)];
+
 %% Section filternewref
 % Filter the data in table workNewRefWithVals based on the minimum variant
 % allele frequency and the minimum read count, and both of these values are
@@ -636,104 +738,6 @@ for i=1:numFilterRows;
 
 end;
 
-%% Section exonLookup
-% Create lookup table that contains the data for the exon number and
-% distance from nearest exon for all possible nt values from the reference
-
-exonLookup = [workNewRef(:, 1:2) zeros(size(workNewRef, 1), 2)];
-
-for i=1:size(exonLookup, 1);
-
-    numExons = size(T1T2exonsflush, 1);
-
-    numT1Exons = 0;
-
-    for j=1:numExons;
-        if(T1T2exonsflush(j, 1) == 9);
-            numT1Exons = numT1Exons + 1;
-        end;
-    end;
-
-    numT2Exons = numExons - numT1Exons;
-
-    foundFlag = 0;
-    rowNum = 0;
-    % For TSC1, we have:
-    index = 0;
-
-    % For TSC2, we have:
-    %index = numT1Exons;
-
-    while(index < numExons && foundFlag == 0);
-        index = index + 1;
-
-        % Make sure the chr numbers match up
-        if(exonLookup(i, 1) == T1T2exonsflush(index, 1));
-            if(exonLookup(i, 2) >= T1T2exonsflush(index, 3) && exonLookup(i, 2) <= T1T2exonsflush(index, 4));
-                rowNum = index;
-                foundFlag = 1;
-            end;
-        end;
-    end;
-
-    % Case when the nucleotide position is in an exonic region
-    if(rowNum ~= 0);
-        exonLookup(i, 3) = T1T2exonsflush(rowNum, 2);
-
-    % Case when the nucleotide position is not in an exonic region
-    else
-        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
-        % TSC2 GENE CASE *************************************************
-        distanceVals = zeros(numT1Exons, 2);
-
-        % Put all the distances in a table
-        for j=1:numT1Exons;
-            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
-        end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        % Get the actual distance from the nearest exon
-        distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
-
-        % Closest exon
-        exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
-
-        exonLookup(i, 4) = distVal;
-
-        % TSC2 CASE, copy and paste this when using TSC2:
-        %{
-        distanceVals = zeros(numT2Exons, 2);
-
-        % Put all the distances in a table
-        exonInd = numT1Exons;
-        for j=1:numT2Exons;
-            exonInd = exonInd + 1;
-            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - exonLookup(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - exonLookup(i, 2));
-        end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        row = row(1) + numT1Exons;
-
-        % Get the actual distance from the nearest exon
-        distVal = exonLookup(i, 2) - T1T2exonsflush(row, col(1) + 2);
-
-        exonLookup(i, 3) = T1T2exonsflush(row, 2);
-
-        exonLookup(i, 4) = distVal;
-        %}
-
-    end;
-
-end;
-
 %% Section formatfilterexons
 
 % Now column 9 represents the exon number at that nucleotide position and
@@ -757,13 +761,13 @@ end;
 %numT2Exons = numExons - numT1Exons;
 
 for i=1:numFilterRows;
-    [row, col] = find(exonLookup == formatfilterexons(i,2));
 
-    formatfilterexons(i, 9) = exonLookup(row, 3);
+    formatfilterexons(i, 9) = filterwithoutzeros(i, end-1);
 
-    formatfilterexons(i, 10) = exonLookup(row, 4);
+    formatfilterexons(i, 10) = filterwithoutzeros(i, end);
 
 end;
+
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
 
@@ -963,7 +967,7 @@ dlmwrite(excelfile, formatfilteraa, 'precision', 9);
 
 %% Section workNewRefIndels
 
-workNewRefIndels = [workNewRefWithVals(:, 1) workNewRefWithVals(:, end-s-1:end-s) zeros(workbRows, s * 2)];
+workNewRefIndels = [workNewRefWithVals(:, 1) workNewRefWithVals(:, end-s-3:end-s-2) zeros(workbRows, s * 2) workNewRefWithVals(:,end-1:end)];
 
 for i=1:workbRows;
     filterFlag = 0;
@@ -1042,11 +1046,9 @@ for i=1:indelRows;
 
     formatfilterindels(i, 6) = numSamplesAboveCutoff;
 
-    [row, col2] = find(exonLookup == formatfilterindels(i, 2));
+    formatfilterindels(i, 7) = filterIndelsWithoutZeros(i, end-1);
 
-    formatfilterindels(i, 7) = exonLookup(row, 3);
-
-    formatfilterindels(i, 8) = exonLookup(row, 4);
+    formatfilterindels(i, 8) = filterIndelsWithoutZeros(i, end);
 
     [row, col] = find(cdnaLookup == formatfilterindels(i, 2));
 
