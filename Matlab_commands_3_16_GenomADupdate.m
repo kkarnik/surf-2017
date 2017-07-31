@@ -305,6 +305,17 @@ for i=1:lenRef;
     refSeq(i, 2) = ntVals(i);
 end;
 
+caseTSC1 = 0;
+caseTSC2 = 0;
+
+if(refSeq(1, 1) == 135756735);
+    caseTSC1 = 1;
+    caseTSC2 = 0;
+elseif(refSeq(1, 1) == 2087990);
+    caseTSC1 = 0;
+    caseTSC2 = 1;
+end;
+
 %% Section noiseRefSeq
 % Identify the poly-A sequences and flag them in the reference (run of
 % consecutive A's or T's)
@@ -508,12 +519,15 @@ for i=1:size(exonLookup, 1);
 
     foundFlag = 0;
     rowNum = 0;
-    % For TSC1, we have:
-    index = 0;
-
-    % For TSC2, we have:
-    %index = numT1Exons;
-
+    
+    if(caseTSC1 == 1);
+        % For TSC1, we have:
+        index = 0;
+    elseif(caseTSC2 == 1);
+        % For TSC2, we have:
+        index = numT1Exons;
+    end;
+        
     while(index < numExons && foundFlag == 0);
         index = index + 1;
 
@@ -532,54 +546,55 @@ for i=1:size(exonLookup, 1);
 
     % Case when the nucleotide position is not in an exonic region
     else
-        % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
-        % TSC2 GENE CASE *************************************************
-        distanceVals = zeros(numT1Exons, 2);
+        if(caseTSC1 == 1);
+            % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
+            % TSC2 GENE CASE *************************************************
+            distanceVals = zeros(numT1Exons, 2);
 
-        % Put all the distances in a table
-        for j=1:numT1Exons;
-            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
+            % Put all the distances in a table
+            for j=1:numT1Exons;
+                distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
+                distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
+            end;
+
+            % Find the absolute value of the distance from the nearest exon
+            minElement = min(min(distanceVals));
+            [row, col] = find(distanceVals == minElement);
+
+            % Get the actual distance from the nearest exon
+            distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
+
+            % Closest exon
+            exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
+
+            exonLookup(i, 4) = distVal;
+        elseif(caseTSC2 == 1);
+            % TSC2 CASE, copy and paste this when using TSC2:
+            
+            distanceVals = zeros(numT2Exons, 2);
+
+            % Put all the distances in a table
+            exonInd = numT1Exons;
+            for j=1:numT2Exons;
+                exonInd = exonInd + 1;
+                distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - exonLookup(i, 2));
+                distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - exonLookup(i, 2));
+            end;
+
+            % Find the absolute value of the distance from the nearest exon
+            minElement = min(min(distanceVals));
+            [row, col] = find(distanceVals == minElement);
+
+            row = row(1) + numT1Exons;
+
+            % Get the actual distance from the nearest exon
+            distVal = exonLookup(i, 2) - T1T2exonsflush(row, col(1) + 2);
+
+            exonLookup(i, 3) = T1T2exonsflush(row, 2);
+
+            exonLookup(i, 4) = distVal;
+            
         end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        % Get the actual distance from the nearest exon
-        distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
-
-        % Closest exon
-        exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
-
-        exonLookup(i, 4) = distVal;
-
-        % TSC2 CASE, copy and paste this when using TSC2:
-        %{
-        distanceVals = zeros(numT2Exons, 2);
-
-        % Put all the distances in a table
-        exonInd = numT1Exons;
-        for j=1:numT2Exons;
-            exonInd = exonInd + 1;
-            distanceVals(j, 1) = abs(T1T2exonsflush(exonInd, 3) - exonLookup(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(exonInd, 4) - exonLookup(i, 2));
-        end;
-
-        % Find the absolute value of the distance from the nearest exon
-        minElement = min(min(distanceVals));
-        [row, col] = find(distanceVals == minElement);
-
-        row = row(1) + numT1Exons;
-
-        % Get the actual distance from the nearest exon
-        distVal = exonLookup(i, 2) - T1T2exonsflush(row, col(1) + 2);
-
-        exonLookup(i, 3) = T1T2exonsflush(row, 2);
-
-        exonLookup(i, 4) = distVal;
-        %}
-
     end;
 
 end;
@@ -769,14 +784,15 @@ end;
 % 7) codon with T substituted at the index
 
 % Set to 1 if we are doing this analysis for TSC2
-caseTSC2 = 0;
+%caseTSC2 = 0;
 
-numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
-cdnaLookup = zeros(numCdnaRows, 12);
-exonData = TSC1_exon_coord_flush;
-cdnaIndex = numCdnaRows;
-
-if(caseTSC2 == 1);
+if(caseTSC1 == 1);
+    numCdnaRows = TSC1_exon_coord_flush(2,4) - TSC1_exon_coord_flush(2,3) + TSC1_exon_coord_flush(2,5);
+    cdnaLookup = zeros(numCdnaRows, 12);
+    exonData = TSC1_exon_coord_flush;
+    cdnaIndex = numCdnaRows;
+    
+elseif(caseTSC2 == 1);
     numCdnaRows = TSC2_exon_coord_flush(42,4) - TSC2_exon_coord_flush(42,3) + TSC2_exon_coord_flush(42,5);
     cdnaLookup = zeros(numCdnaRows, 12);
     exonData = TSC2_exon_coord_flush;
@@ -791,62 +807,95 @@ for i=1:size(exonData, 1);
             cdnaLookup(rowIndex, 1) = cdnaIndex;
             cdnaLookup(rowIndex, 2) = val;
 
-            % If TSC1, use this:
-            cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);
-
-            % If TSC2, use this:
-            % cdnaLookup(rowIndex, 3) = TSC2_nt_coding(rowIndex, 1);
-
+            if(caseTSC1 == 1);
+                % If TSC1, use this:
+                cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);            
+            elseif(caseTSC2 == 1);
+                % If TSC2, use this:
+                cdnaLookup(rowIndex, 3) = TSC2_nt_coding(cdnaIndex, 1);
+            end;
+            
             aaNum = ceil(cdnaIndex / 3);
             cdnaLookup(rowIndex, 4) = aaNum;
 
             rowIndex = rowIndex + 1;
 
-            % For TSC1 use this since it is in anti-sense orientation:
-            cdnaIndex = cdnaIndex - 1;
-
-            % For TSC2 use this since it is in sense orientation:
-            % cdnaIndex = cdnaIndex + 1;
+            if(caseTSC1 == 1);
+                % For TSC1 use this since it is in anti-sense orientation:
+                cdnaIndex = cdnaIndex - 1;
+            elseif(caseTSC2 == 1);
+                % For TSC2 use this since it is in sense orientation:
+                cdnaIndex = cdnaIndex + 1;
+            end;
+            
         end;
     end;
 end;
 
 % FOR TSC2, do this:
 % for i=1:size(cdnaLookup, 1);
-for i=size(cdnaLookup,1):-1:1;
+
+loopStart = 0;
+loopStep = 0;
+loopEnd = 0;
+checkInd = 0;
+
+if(caseTSC1 == 1);
+    loopStart = size(cdnaLookup,1);
+    loopStep = -1;
+    loopEnd = 1;
+    checkInd = 0;
+elseif(caseTSC2 == 1);
+    loopStart = 1;
+    loopStep = 1;
+    loopEnd = size(cdnaLookup,1);
+    checkInd = 1;
+end;
+    
+for i=loopStart:loopStep:loopEnd;
     codonInd = mod(i, 3);
 
-    % For TSC2, do codonInd == 1
-    if(codonInd == 0);
-        firstNTval = num2str(cdnaLookup(i, 3));
-        secondNTval = num2str(cdnaLookup(i - 1, 3));
-        thirdNTval = num2str(cdnaLookup(i - 2, 3));
+    % For TSC2, do codonInd == 1, for TSC1 do codonInd == 0
+    if(codonInd == checkInd);
+        
+        if(caseTSC1 == 1);
+            firstNTval = num2str(cdnaLookup(i, 3));
+            secondNTval = num2str(cdnaLookup(i - 1, 3));
+            thirdNTval = num2str(cdnaLookup(i - 2, 3));
 
+        elseif(caseTSC2 == 1);
+            firstNTval = num2str(cdnaLookup(i, 3));
+            secondNTval = num2str(cdnaLookup(i + 1, 3));
+            thirdNTval = num2str(cdnaLookup(i + 2, 3));
+        end;
+        
         % For TSC2, do i, i+1, i+2 rather than -
     end;
 
     codonStr = strcat(firstNTval, secondNTval, thirdNTval);
 
     for j=1:4;
-        if(codonInd == 0);
-            codonStr(1) = num2str(j);
-        elseif(codonInd == 2);
-            codonStr(2) = num2str(j);
-        elseif(codonInd == 1);
-            codonStr(3) = num2str(j);
+        if(caseTSC1 == 1);
+        
+            if(codonInd == 0);
+                codonStr(1) = num2str(j);
+            elseif(codonInd == 2);
+                codonStr(2) = num2str(j);
+            elseif(codonInd == 1);
+                codonStr(3) = num2str(j);
+            end;
+
+        elseif(caseTSC2 == 1);
+            
+            %USE FOR TSC2 CASE:
+
+            if(codonInd == 0);
+                codonInd = 3;
+            end;
+
+            codonStr(codonInd) = num2str(j);
+
         end;
-
-        %{
-
-        USE FOR TSC2 CASE:
-
-        if(codonInd == 0);
-            codonInd = 3;
-        end;
-
-        codonStr(codonInd) = num2str(j);
-
-        %}
 
         cdnaLookup(i, 4+j) = str2double(codonStr);
 
@@ -1106,25 +1155,31 @@ binListRows = ceil((2138713-2097990)/binSize) + ceil((135820020-135766735)/binSi
 
 binList = zeros(binListRows, 5+s);
 
-% For TSC1, use this:
-binInd = 1;
-index = 135766735;
-endInd = 135820020;
+if(caseTSC1 == 1);
+    % For TSC1, use this:
+    binInd = 1;
+    index = 135766735;
+    endInd = 135820020;
 
-% For TSC2, use this:
-%binInd = ceil((135820020-135766735)/binSize) + 1;
-%index = 2097990;
-%endInd = 2138713;
+elseif(caseTSC2 == 1);
+    % For TSC2, use this:
+    binInd = ceil((135820020-135766735)/binSize) + 1;
+    index = 2097990;
+    endInd = 2138713;
+end;
 
 % For TSC1, use this:
 while(index < endInd);
 
-    % For TSC1, use this:
-    binList(binInd, 1) = 9;
+    if(caseTSC1 == 1);
+        % For TSC1, use this:
+        binList(binInd, 1) = 9;
 
-    % For TSC2, use this:
-    % binList(binInd, 1) = 16;
-
+    elseif(caseTSC2 == 1);
+        % For TSC2, use this:
+        binList(binInd, 1) = 16;
+    end;
+        
     binList(binInd, 2) = binInd;
     binList(binInd, 3) = index;
 
@@ -1143,7 +1198,7 @@ for i=1:binListRows;
     totReads = zeros(1, s);
 
     % TSC1 case
-    if(binList(i, 1) == 9);
+    if(caseTSC1 == 1);
 
         [row, col] = find(workNewRefWithVals == binList(i,3));
 
@@ -1178,7 +1233,7 @@ for i=1:binListRows;
         end;
 
     % TSC2 case
-    elseif(binList(i, 1) == 16);
+    elseif(caseTSC2 == 1);
 
         [row, col] = find(workNewRefWithVals == binList(i,3));
 
