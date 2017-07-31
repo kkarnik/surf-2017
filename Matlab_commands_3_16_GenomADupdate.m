@@ -911,7 +911,7 @@ end;
 % 4) ref nt value (A G C T = 1 2 3 4)
 % 5) AF of sample with highest AF
 % 6) Variant nt value for sample with highest variant AF
-% 7) Number of samples at or greater than the threshold variant AF
+% 7) Number of samples with variant AF at or greater than 0
 % 8) SNP Allele Frequency
 % 9) exon number
 % 10) position (distance from nearest exon)
@@ -919,9 +919,9 @@ end;
 % 12) amino acid index number
 % 13) ref aa
 % 14) mut aa
-% 15) is the sample +/- 5 bp away from a polyA sequence?
-% 15) Variant AF for Sample 1
-% 16) "          for Sample 2
+% 15) is the nt posn +/- 5 bp away from a polyA sequence?
+% 16) Variant AF for Sample 1
+% 17) "          for Sample 2
 % ... and so on for each of the samples
 
 formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) zeros(size(varCodons, 1), 1) formatfilterexons(:, 11:end)];
@@ -1016,13 +1016,15 @@ filterIndelsWithoutZeros = filterIndels(any(filterIndels, 2), :);
 % 13) Num indels for sample 2 ...
 % 14) Indel freq for sample 1
 % 15) Indel freq for sample 2 ...
+% Last two columns: exon number, distance from nearest exon
+
 
 indelRows = size(filterIndelsWithoutZeros, 1);
 
 formatfilterindels = [filterIndelsWithoutZeros(:, 1:2) zeros(indelRows, 1) filterIndelsWithoutZeros(:, 3) zeros(indelRows, 7) filterIndelsWithoutZeros(:, 4:end)];
 
 for i=1:indelRows;
-    formatfilterindels(i, 5) = max(formatfilterindels(i, 12+s:end));
+    formatfilterindels(i, 5) = max(formatfilterindels(i, 12+s:end-2));
 
     numSamplesAboveCutoff = 0;
 
@@ -1533,7 +1535,7 @@ end;
 %following the initial 5 fields of chr nt maxGT #-het-GT exon-SNP-AF-info
 %when the variant alleles in the two directions are discordant, the AF value is made -1
 
-%%Section workgb
+%% Section workgb
 %captures some additional information from workga
 
 %initial 7 fields of chr nt maxGT #-het-GT exon-SNP-AF-info max-var-AF
@@ -1555,7 +1557,7 @@ for i=1:j;
     end;
 end;
 
-%%Section workgc
+%% Section workgc
 %captures exon and c.# info, intron relative position, aa# and aa change
 %first 13 fields are
 %chr nt maxGT #-het-GT SNP-AF-info max-minor-AF
