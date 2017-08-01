@@ -519,7 +519,7 @@ for i=1:size(exonLookup, 1);
 
     foundFlag = 0;
     rowNum = 0;
-    
+
     if(caseTSC1 == 1);
         % For TSC1, we have:
         index = 0;
@@ -527,7 +527,7 @@ for i=1:size(exonLookup, 1);
         % For TSC2, we have:
         index = numT1Exons;
     end;
-        
+
     while(index < numExons && foundFlag == 0);
         index = index + 1;
 
@@ -570,7 +570,7 @@ for i=1:size(exonLookup, 1);
             exonLookup(i, 4) = distVal;
         elseif(caseTSC2 == 1);
             % TSC2 CASE, copy and paste this when using TSC2:
-            
+
             distanceVals = zeros(numT2Exons, 2);
 
             % Put all the distances in a table
@@ -593,7 +593,7 @@ for i=1:size(exonLookup, 1);
             exonLookup(i, 3) = T1T2exonsflush(row, 2);
 
             exonLookup(i, 4) = distVal;
-            
+
         end;
     end;
 
@@ -791,7 +791,7 @@ if(caseTSC1 == 1);
     cdnaLookup = zeros(numCdnaRows, 12);
     exonData = TSC1_exon_coord_flush;
     cdnaIndex = numCdnaRows;
-    
+
 elseif(caseTSC2 == 1);
     numCdnaRows = TSC2_exon_coord_flush(42,4) - TSC2_exon_coord_flush(42,3) + TSC2_exon_coord_flush(42,5);
     cdnaLookup = zeros(numCdnaRows, 12);
@@ -809,12 +809,12 @@ for i=1:size(exonData, 1);
 
             if(caseTSC1 == 1);
                 % If TSC1, use this:
-                cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);            
+                cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);
             elseif(caseTSC2 == 1);
                 % If TSC2, use this:
                 cdnaLookup(rowIndex, 3) = TSC2_nt_coding(cdnaIndex, 1);
             end;
-            
+
             aaNum = ceil(cdnaIndex / 3);
             cdnaLookup(rowIndex, 4) = aaNum;
 
@@ -827,7 +827,7 @@ for i=1:size(exonData, 1);
                 % For TSC2 use this since it is in sense orientation:
                 cdnaIndex = cdnaIndex + 1;
             end;
-            
+
         end;
     end;
 end;
@@ -851,13 +851,13 @@ elseif(caseTSC2 == 1);
     loopEnd = size(cdnaLookup,1);
     checkInd = 1;
 end;
-    
+
 for i=loopStart:loopStep:loopEnd;
     codonInd = mod(i, 3);
 
     % For TSC2, do codonInd == 1, for TSC1 do codonInd == 0
     if(codonInd == checkInd);
-        
+
         if(caseTSC1 == 1);
             firstNTval = num2str(cdnaLookup(i, 3));
             secondNTval = num2str(cdnaLookup(i - 1, 3));
@@ -868,7 +868,7 @@ for i=loopStart:loopStep:loopEnd;
             secondNTval = num2str(cdnaLookup(i + 1, 3));
             thirdNTval = num2str(cdnaLookup(i + 2, 3));
         end;
-        
+
         % For TSC2, do i, i+1, i+2 rather than -
     end;
 
@@ -876,7 +876,7 @@ for i=loopStart:loopStep:loopEnd;
 
     for j=1:4;
         if(caseTSC1 == 1);
-        
+
             if(codonInd == 0);
                 codonStr(1) = num2str(j);
             elseif(codonInd == 2);
@@ -886,7 +886,7 @@ for i=loopStart:loopStep:loopEnd;
             end;
 
         elseif(caseTSC2 == 1);
-            
+
             %USE FOR TSC2 CASE:
 
             if(codonInd == 0);
@@ -977,7 +977,7 @@ formatfilteraa = [formatfilterexons(:, 1:10) varCodons(:, 4:7) zeros(size(varCod
 
 for i=1:size(varCodons, 1);
     [row, col] = find(formatfilteraa(i, 2) == noiseRefSeq);
-    
+
     if(row <= lenRef - 5);
         if(noiseRefSeq(row - 5, 3) == 1 ...
                || noiseRefSeq(row - 4, 3) == 1 ...
@@ -1179,7 +1179,7 @@ while(index < endInd);
         % For TSC2, use this:
         binList(binInd, 1) = 16;
     end;
-        
+
     binList(binInd, 2) = binInd;
     binList(binInd, 3) = index;
 
@@ -1203,13 +1203,13 @@ for i=1:binListRows;
         [row, col] = find(workNewRefWithVals == binList(i,3));
 
         row = row(1);
-        
+
         for j=binList(i,3):binList(i,4);
 
             for m=1:s;
                 totReads(1, m) = totReads(1, m) + workNewRefWithVals(row, 8 + 26*(m-1)) + workNewRefWithVals(row, 18 + 26*(m-1));
             end;
-            
+
             row = row + 1;
         end;
 
@@ -1224,7 +1224,7 @@ for i=1:binListRows;
                 binList(i, 5+n) = totReads(1, n) / binSize;
             end;
         end;
-        
+
         for k=1:24;
             if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
                 binList(i, 5) = T1T2exonsflush(k, 2);
@@ -1238,13 +1238,13 @@ for i=1:binListRows;
         [row, col] = find(workNewRefWithVals == binList(i,3));
 
         row = row(1);
-        
+
         for j=binList(i,3):binList(i,4);
 
             for m=1:s;
                 totReads(1, m) = totReads(1, m) + workNewRefWithVals(row, 8 + 26*(m-1)) + workNewRefWithVals(row, 18 + 26*(m-1));
             end;
-            
+
             row = row + 1;
         end;
 
@@ -1259,20 +1259,26 @@ for i=1:binListRows;
                 binList(i, 5+n) = totReads(1, n) / binSize;
             end;
         end;
-        
+
         for k=25:67;
             if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
                 binList(i, 5) = T1T2exonsflush(k, 2);
                 break;
             end;
         end;
-        
+
     end;
 end;
 
 %%%%%%%%%%%%%%%%%%%%%
 
+% Section exportbindata
+% Here, we export the data in the binList table to an csv document
 
+excelfile3 = 'readcountdata.csv';
+dlmwrite(excelfile3, binList, 'precision', 9);
+
+%%%%%%%%%%%%%%%%%%%%%
 
 %% Section workc
 % Now convert the read counts in columns 3-7 and 13-17 to fractions of total read# rather than counts in workc
