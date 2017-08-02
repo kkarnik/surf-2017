@@ -7,14 +7,45 @@ import subprocess
 from multiprocessing.pool import ThreadPool as Pool
 import shutil
 
-#TSC1 9:135766735-135820020
-#TSC2 16:2097990-2138713
-#MTOR 1:11166588-11322608
-#PTEN: 10:89623195-89728532
-#PIK3CA: 3:178866311-178952497
-#VHL: 3:10183319-10195354
-#FLCN 17:17113000-17143000
-#FH
+
+# TSC1 9:135766735-135820020
+# TSC2 16:2097990-2138713
+# MTOR 1:11166588-11322608
+# PTEN: 10:89623195-89728532
+# PIK3CA: 3:178866311-178952497
+# VHL: 3:10183319-10195354
+# FLCN 17:17113000-17143000
+
+###############################
+# cfDNA cases:
+# TXNIP: "1:145438462-145442628"
+# KDM6A: "X:44732423-44971845"
+# MSR1: "8:15965387-16050300"
+# NF2: "22:29999545-30094589"
+# VHL: "3:10183319-10195354"
+# NPNT: "4:106816597-106892828"
+# MET: "7:116312459-116438440"
+# TP53: "17:7571720-7590868"
+# BAP1: "3:52435020-52444121"
+# PTEN: "10:89623195-89728532"
+# ATM: "11:108093559-108239826"
+# MICALCL: "11:12308447-12380691"
+# CDKN1A: "6:36644237-36655116"
+# HIF1A: "14:62162119-62214977"
+# TSC1: "9:135766735-135820020"
+# SMARCB1: "22:24129150-24176705"
+# TSC2: "16:2097990-2138713"
+# RHEB: "7:151163098-151217010"
+# PIK3CA: "3:178866311-178952497"
+# PBRM: "3:52579368-52713739"
+# TCEB1: "8:74857373-74884522"
+# MTOR: "1:11166588-11322608"
+# NFE2L2: "2:178095031-178129859"
+# SLITRK6: "13:86366922-86373483"
+# SETD2: "3:47057898-47205467"
+# STAG2: "X:123094475-123236505"
+# KDM5C: "X:53220503-53254604"
+
 class Application(Frame):
     # To run this application, the following files are needed:
     # numSamples.txt
@@ -36,37 +67,51 @@ class Application(Frame):
         self.genbai.pack(side=TOP)
 
         L1 = Label(self, text="Location (chr:nt-nt):")
-        L1.pack(side=LEFT)
+        L1.pack()
         global E1
-        #E1 = Entry(self, bd =5)
-        #E1.pack(side=LEFT)
+        # E1 = Entry(self, bd =5)
+        # E1.pack(side=LEFT)
 
         # Change the entry to a drop-down widget from which we can select a location in a specified chromosome
         E1 = StringVar(self)
 
         E1.set("9:135766735-135820020")
-        option = OptionMenu(self, E1, "9:135766735-135820020", "16:2097990-2138713", "1:11166588-11322608", \
-                            "10:89623195-89728532", "3:178866311-178952497", "3:10183319-10195354", \
+        option = OptionMenu(self, E1, "9:135766735-135820020", \
+                            "16:2097990-2138713", \
+                            "1:11166588-11322608", \
+                            "10:89623195-89728532", \
+                            "3:178866311-178952497", \
+                            "3:10183319-10195354", \
                             "17:17113000-17143000")
-        option.pack(side=LEFT)
+
+        # Order of locations is:
+        # TSC1
+        # TSC2
+        # MTOR
+        # PTEN
+        # PIK3CA
+        # VHL
+        # FLCN
+
+        option.pack()
 
         L2 = Label(self, text="Minimum Variant Allele Frequency:")
-        L2.pack(side=LEFT)
+        L2.pack()
         global E2
-        E2 = Entry(self, bd =5)
-        E2.pack(side=LEFT)
+        E2 = Entry(self, bd=5)
+        E2.pack()
 
         L3 = Label(self, text="Minimum read count (total):")
-        L3.pack(side=LEFT)
+        L3.pack()
         global E3
-        E3 = Entry(self, bd =5)
-        E3.pack(side=LEFT)
+        E3 = Entry(self, bd=5)
+        E3.pack()
 
         L4 = Label(self, text="Minimum indel frequency:")
-        L4.pack(side=LEFT)
+        L4.pack()
         global E4
-        E4 = Entry(self, bd =5)
-        E4.pack(side=LEFT)
+        E4 = Entry(self, bd=5)
+        E4.pack()
 
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
@@ -74,7 +119,7 @@ class Application(Frame):
         self.matlab = Button(self, text="Run matlab script", command=self.runmatlab)
         self.matlab.pack()
 
-        #self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
+        # self.spreadsheet = Button(self, text="Excel Spreadsheet", command=self.createspreadsheet)
 
     def saveminfreq(self):
         '''
@@ -129,7 +174,7 @@ class Application(Frame):
 
         self.namereader()
 
-        if(not self.isvalidregion(geneloc)):
+        if (not self.isvalidregion(geneloc)):
             print('Error, region is not valid\n')
             exit()
         else:
@@ -145,23 +190,23 @@ class Application(Frame):
         target = open('reformatgenomeAD.txt', 'w')
 
         for line in source.readlines():
-            if(line == 'A\n'):
+            if (line == 'A\n'):
                 target.write('1\n')
-            elif(line == 'G\n'):
+            elif (line == 'G\n'):
                 target.write('2\n')
-            elif(line == 'C\n'):
+            elif (line == 'C\n'):
                 target.write('3\n')
-            elif(line == 'T\n'):
+            elif (line == 'T\n'):
                 target.write('4\n')
             else:
                 for char in line:
-                    if(char == 'A'):
+                    if (char == 'A'):
                         target.write('1')
-                    elif(char == 'G'):
+                    elif (char == 'G'):
                         target.write('2')
-                    elif(char == 'C'):
+                    elif (char == 'C'):
                         target.write('3')
-                    elif(char == 'T'):
+                    elif (char == 'T'):
                         target.write('4')
                 target.write('\n')
 
@@ -180,9 +225,9 @@ class Application(Frame):
 
         inputLen = len(geneloc)
 
-        inputStart = int(geneloc[i : j])
+        inputStart = int(geneloc[i: j])
 
-        inputEnd = int(geneloc[j+1 : inputLen])
+        inputEnd = int(geneloc[j + 1: inputLen])
 
         refSeqFile = open("genomewithinst.txt", "r")
 
@@ -192,8 +237,8 @@ class Application(Frame):
         indexmid = fileData.find('-')
         indexend = fileData.find('\'') - 2
 
-        refStart = int(fileData[indexbegin : indexmid])
-        refEnd = int(fileData[indexmid+1 : indexend])
+        refStart = int(fileData[indexbegin: indexmid])
+        refEnd = int(fileData[indexmid + 1: indexend])
 
         text_file = open("initindex.txt", "w")
         text_file.write("%d" % refStart)
@@ -205,7 +250,7 @@ class Application(Frame):
         refSeqFile.close()
         target_file.close()
 
-        return((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
+        return ((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
 
     def namereader(self):
         '''
@@ -213,29 +258,29 @@ class Application(Frame):
         names of these files in namelist.txt
         '''
         global geneloc
-        geneloc=E1.get()
+        geneloc = E1.get()
 
         numSamples = 0
 
         oldstdout = sys.stdout
-        f = open('namelist.txt','w')
+        f = open('namelist.txt', 'w')
         sys.stdout = f
 
-        #path = "/Users/guest/Desktop/Karthik"
+        # path = "/Users/guest/Desktop/Karthik"
 
         path = os.path.realpath(__file__)
 
         path = path.replace('/Analyzer.py', '')
 
-        dirs = os.listdir( path )
+        dirs = os.listdir(path)
 
         for file in dirs:
             if file.endswith(".bam"):
-                #file=file.replace(".pup","")
+                # file=file.replace(".pup","")
                 print(file)
                 numSamples += 1
 
-        sys.stdout=oldstdout
+        sys.stdout = oldstdout
 
         numSamplesFile = open("numSamples.txt", "w")
         numSamplesFile.write("%d" % numSamples)
@@ -246,20 +291,20 @@ class Application(Frame):
         Generates .bai files by calling a subprocess which calls the samtools
         index command on the UNIX command line
         '''
-        for line in open('namelist.txt','r'):
-            line2=line.replace("\n","")
-            line3=line2.replace(" ",line2)
-            subprocess.call(['samtools index '+line3], shell=True)
+        for line in open('namelist.txt', 'r'):
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            subprocess.call(['samtools index ' + line3], shell=True)
 
     def pupgenerator(self):
         '''
         Generates .pup files by calling a subprocess which calls the samtools
         mpileup command on the UNIX command line
         '''
-        for line in open('namelist.txt','r'):
-            line2=line.replace("\n","")
-            line3=line2.replace(" ",line2)
-            subprocess.call(['samtools mpileup -r '+geneloc+' '+line3+' > '+line3+'.pup'], shell=True)
+        for line in open('namelist.txt', 'r'):
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            subprocess.call(['samtools mpileup -r ' + geneloc + ' ' + line3 + ' > ' + line3 + '.pup'], shell=True)
 
     def outgenerator(self):
         '''
@@ -282,17 +327,15 @@ class Application(Frame):
             Function that represents the operation done in the loop in the
             outgenerator function
             '''
-            line2=line.replace("\n","")
-            line3=line2.replace(" ",line2)
-            #print("operation before call: %s\n" % line3)
-            subprocess.call(['python v12-q50.py '+line3+'.pup '+line3+'.out'], shell=True)
-            #print("operation after call: %s\n" % line3)
-
-
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            # print("operation before call: %s\n" % line3)
+            subprocess.call(['python v12-q50.py ' + line3 + '.pup ' + line3 + '.out'], shell=True)
+            # print("operation after call: %s\n" % line3)
 
         # Make the threads run in parallel
         for line in lineList:
-            #print("thread being run is %s\n" % line)
+            # print("thread being run is %s\n" % line)
             pool.apply_async(out_loop_operation, (line,))
 
         pool.close()
@@ -304,30 +347,31 @@ class Application(Frame):
         on the UNIX command line
         '''
 
-        for line in open('namelist.txt','r'):
-            line2 = line.replace("\n","")
-            line3 = line2.replace(" ",line2)
-            subprocess.call(['cut -f 2,3,6-9,11-14,16-18 '+line3+'.out > '+line3+'.a'], shell=True)
+        for line in open('namelist.txt', 'r'):
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            subprocess.call(['cut -f 2,3,6-9,11-14,16-18 ' + line3 + '.out > ' + line3 + '.a'], shell=True)
 
     def zeroscreator(self):
         '''
         Populates the mergez.txt file initially with zeroes
         '''
-        #rowcount = str(subprocess.check_output(['wc -l < '+largestname], shell=True))
+        # rowcount = str(subprocess.check_output(['wc -l < '+largestname], shell=True))
 
         subprocess.call(['python zeroscreator.py zeros.txt 70000 13'], shell=True)
 
-        for line in open('namelist.txt','r'):
-            line2 = line.replace("\n","")
-            line3 = line2.replace(" ",line2)
-            subprocess.call(['cat '+line3+'.a zeros.txt > '+line3+'.b'], shell=True)
+        for line in open('namelist.txt', 'r'):
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            subprocess.call(['cat ' + line3 + '.a zeros.txt > ' + line3 + '.b'], shell=True)
 
-        filenames=''
-        for line in open('namelist.txt','r'):
-            line2 = line.replace("\n","")
-            line3 = line2.replace(" ",line2)
-            filenames=filenames+line3+'.b '
-        subprocess.call(['python merger.py '+filenames+'>>mergez.txt'], shell=True)
+        filenames = ''
+        for line in open('namelist.txt', 'r'):
+            line2 = line.replace("\n", "")
+            line3 = line2.replace(" ", line2)
+            filenames = filenames + line3 + '.b '
+        subprocess.call(['python merger.py ' + filenames + '>>mergez.txt'], shell=True)
+
 
 root = Tk()
 app = Application(master=root)
