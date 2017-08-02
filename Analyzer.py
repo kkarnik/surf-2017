@@ -21,9 +21,6 @@ class Application(Frame):
     # genomewithinst.txt
     # merger.py
     # v12-q50.py
-    # readcount.py
-    # igv_session.xml
-    # IGVBatch.py
     # Analyzer.py (which is this file itself)
 
     def __init__(self, master=None):
@@ -41,8 +38,17 @@ class Application(Frame):
         L1 = Label(self, text="Location (chr:nt-nt):")
         L1.pack(side=LEFT)
         global E1
-        E1 = Entry(self, bd =5)
-        E1.pack(side=LEFT)
+        #E1 = Entry(self, bd =5)
+        #E1.pack(side=LEFT)
+
+        # Change the entry to a drop-down widget from which we can select a location in a specified chromosome
+        E1 = StringVar(self)
+
+        E1.set("9:135766735-135820020")
+        option = OptionMenu(self, E1, "9:135766735-135820020", "16:2097990-2138713", "1:11166588-11322608", \
+                            "10:89623195-89728532", "3:178866311-178952497", "3:10183319-10195354", \
+                            "17:17113000-17143000")
+        option.pack(side=LEFT)
 
         L2 = Label(self, text="Minimum Variant Allele Frequency:")
         L2.pack(side=LEFT)
