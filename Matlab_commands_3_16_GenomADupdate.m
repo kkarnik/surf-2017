@@ -1226,7 +1226,7 @@ for i=1:binListRows;
         end;
 
         for k=1:24;
-            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
+            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)) || (binList(i, 3) <= T1T2exonsflush(k, 3) && binList(i, 4) >= T1T2exonsflush(k, 4)));
                 binList(i, 5) = T1T2exonsflush(k, 2);
                 break;
             end;
@@ -1261,7 +1261,7 @@ for i=1:binListRows;
         end;
 
         for k=25:67;
-            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)));
+            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)) || (binList(i, 3) <= T1T2exonsflush(k, 3) && binList(i, 4) >= T1T2exonsflush(k, 4)));
                 binList(i, 5) = T1T2exonsflush(k, 2);
                 break;
             end;
