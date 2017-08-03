@@ -181,8 +181,17 @@ class Application(Frame):
             print('Valid region.\n')
 
         self.pupgenerator()
+
+        print("Pileup files generated.\n")
+
         self.outgenerator()
+
+        print("Conversion output files generated.\n")
+
         self.agenerator()
+
+        print("bam.a files generated.\n")
+
         self.zeroscreator()
 
         # Import data from GenomAD Browser
