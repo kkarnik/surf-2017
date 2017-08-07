@@ -457,10 +457,14 @@ for i=1:workbRows;
                 % Get the total number of variants for that specific letter
                 % (A, G, C, T, or indel)
 
-                if(j ~= 5);
-                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));
-                else
-                    numVarReads = workNewRef(i, j + 2 + (26 * (n - 1)));
+                % Only consider value if there actually was a read at all
+                % in each direction
+                if(workNewRef(i, 2+j+26*(n-1)) > 0 && workNewRef(i, 12+j+26*(n-1)) > 0);
+                    if(j ~= 5);
+                        numVarReads = workNewRef(i, j + 2 + (26 * (n - 1))) + workNewRef(i, j + 12 + (26 * (n - 1)));
+                    else
+                        numVarReads = workNewRef(i, j + 2 + (26 * (n - 1)));
+                    end;
                 end;
 
                 % Update the place where we are storing the variant allele
