@@ -1111,7 +1111,7 @@ end;
 % Now the 12th column of the table represents whether or not tht nt
 % position is near a poly-A sequence (1 means that the position is near
 % (+/- 5 bp)) a poly-A sequence
-indelsPolyA = [formatfilterindels(:, 1:(size(formatfilterindels, 2) - 2*s)) zeros(indelRows, 1) formatfilterindels(:, (size(formatfilterindels, 2) - 2*s + 1):end-2)];
+indelsPolyA = [formatfilterindels(:, 1:(size(formatfilterindels, 2) - 2 - 2*s)) zeros(indelRows, 1) formatfilterindels(:, (size(formatfilterindels, 2) - 2*s -2 + 1):end-2)];
 
 for i=1:indelRows;
    [row, col] = find(formatfilterindels(i, 2) == refSeq);
@@ -1133,6 +1133,7 @@ for i=1:indelRows;
        end;
    end;
 end;
+
 
 %% Section export formatfilterindels
 % Here, we export the data in the formatfilterindels table to an csv document
