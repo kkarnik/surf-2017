@@ -264,6 +264,10 @@ class Application(Frame):
         text_file.write("%d" % refStart)
         text_file.close()
 
+        text_file2 = open("endindex.txt", "w")
+        text_file2.write("%d" % refEnd)
+        text_file2.close()
+
         target_file = open("genome.txt", "w")
         shutil.copyfileobj(refSeqFile, target_file)
 
