@@ -233,6 +233,14 @@ class Application(Frame):
         source.close()
         target.close()
 
+        mergeFile = open('mergez.txt', 'r')
+        newMergez = open('newMergez.txt', 'w')
+
+        for line in mergeFile.readlines():
+            newMergez.write(line.replace('X', '23'))
+
+        mergeFile.close()
+
         print("Python analysis complete. mergez.txt file and namelist.txt file generated.\n")
 
     def isvalidregion(self, geneloc):
@@ -256,6 +264,18 @@ class Application(Frame):
         indexbegin = fileData.find(':') + 1
         indexmid = fileData.find('-')
         indexend = fileData.find('\'') - 2
+
+        chrStart = fileData.find('c') + 3
+        chrEnd = indexbegin - 1
+
+        if(fileData[chrStart:chrEnd] == 'X'):
+            chrNum = 23
+        else:
+            chrNum = int(fileData[chrStart:chrEnd])
+
+        chr_file = open("chrnum.txt", "w")
+        chr_file.write("%d" % chrNum)
+        chr_file.close()
 
         refStart = int(fileData[indexbegin: indexmid])
         refEnd = int(fileData[indexmid + 1: indexend])
