@@ -3,13 +3,8 @@ more on
 format shortG
 
 % import table in mergez.txt file as a variable called mergez
-chrNum = dlmread('chrnum.txt');
 
-if(chrNum == 23);
-    mergez = dlmread('newMergez.txt');
-else
-    mergez = dlmread('mergez.txt');
-end;
+mergez = dlmread('mergez.txt');
 
 % import the variable values that were stored in the
 % matlab_input_genomeADcoord.mat file
@@ -42,7 +37,9 @@ for i=75002:137002;
 end;
 
 %{
-% Generalized for anything other than TSC1/TSC2
+endIndex = dlmread('endIndex.txt');
+
+% TXNIP chr1:145438462-145442628
 seqLength = endIndex - initIndex + 1;
 refnt=zeros(seqLength, 2);
 refnt(1:seqLength,1)=chrNum;
@@ -50,7 +47,61 @@ for i=1:seqLength;
     refnt(i,2)=initIndex+i-1;
 end;
 %}
+% %FLCN chr17:17113000-17143000
+% refnt=zeros(30000,2);
+% refnt(1:30000,1)=17;
+% for i=1:30000;
+%     refnt(i,2)=17113000+i-1;
+% end;
 
+% %PIK3CA
+% refnt=zeros(91979,2);
+% refnt(1:91979,1)=3;
+% for i=1:91979;
+%     refnt(i,2)=178865902+i-1;
+% end;
+%
+% %MTOR
+% refnt=zeros(155972,2);
+% refnt(1:155972,1)=1;
+% for i=1:155972;
+%     refnt(i,2)=11166592+i-1;
+% end;
+%
+% %AKT1
+% refnt=zeros(26402,2);
+% refnt(1:26402,1)=14;
+% for i=1:26402;
+%     refnt(i,2)=105235686+i-1;
+% end;
+%
+% %AKT2
+% refnt=zeros(55219,2);
+% refnt(1:55219,1)=19;
+% for i=1:55219;
+%     refnt(i,2)=40736224+i-1;
+% end;
+%
+% % AKT3
+% refnt=zeros(362846,2);
+% refnt(1:362846,1)=1;
+% for i=1:362846;
+%     refnt(i,2)=243651535+i-1;
+% end;
+%
+% % PTEN
+% refnt=zeros(108817,2);
+% refnt(1:108817,1)=10;
+% for i=1:108817;
+%     refnt(i,2)=89622870+i-1;
+% end;
+
+% %DEPDC5
+% refnt=zeros(153083,2);
+% refnt(1:153083,1)=22;
+% for i=1:153083;
+%     refnt(i,2)=32149937+i-1;
+% end;
 %% Section mergez-mergeza
 % Set the number of samples to be the number of bam files in the directory
 s = dlmread('numSamples.txt');
@@ -228,36 +279,12 @@ end;
 % initindex.txt stores the initial index, and this file was created in
 % the python analyzer.py script
 initIndex = dlmread('initindex.txt');
-endIndex = dlmread('endIndex.txt');
 
-filetext = fileread('genome.txt');
+ntVals = dlmread('genomenums.txt');
 
-result = regexprep(filetext, '\s+','');
-
-ntVals = nt2int(result);
-
-% A = 1
-% C = 2
-% G = 3
-% T = 4
-ntVals = double(ntVals);
+ntVals = transpose(ntVals);
 
 lenRef = length(ntVals);
-
-% Change it to:
-% A = 1
-% G = 2
-% C = 3
-% T = 4
-% because later, we have that the columns for the counts of A, G, C, T
-% are in that order
-for i=1:lenRef;
-    if(ntVals(i) == 2);
-        ntVals(i) = 3;
-    elseif(ntVals(i) == 3);
-        ntVals(i) = 2;
-    end;
-end;
 
 refSeq = zeros(lenRef, 2);
 
