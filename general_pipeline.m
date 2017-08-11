@@ -674,6 +674,8 @@ formatfilter(:, 1:2) = filterwithoutzeros(:, 1:2);
 % A = 1, G = 2, C = 3, T = 4
 formatfilter(:, 4) = filterwithoutzeros(:, (26*s) + 2); % Convert these to letters in excel
 
+genomeADfreqs = dlmread('genomeADfreqs.txt');
+
 % Get the allele frequency for the sample with the highest allele frequency
 for i=1:numFilterRows;
     maxFreq = filterwithoutzeros(i, 26);
@@ -709,7 +711,7 @@ for i=1:numFilterRows;
 
     % Set the 8th column to be the percent of variant allele in human
     % population
-    [row, col] = find(TSC1TSC2GenomAD == formatfilter(i, 2));
+    [row, col] = find(genomeADfreqs == formatfilter(i, 2));
 
     [rowAD, colAD] = find(mergedGenomeData == formatfilter(i, 2));
 
@@ -725,7 +727,7 @@ for i=1:numFilterRows;
 
 
         if(displayFlag == 1);
-            formatfilter(i, 8) = TSC1TSC2GenomAD(row(end, 1), 3);
+            formatfilter(i, 8) = genomeADfreqs(row(end, 1), 1);
         end;
     end;
 
