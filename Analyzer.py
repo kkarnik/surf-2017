@@ -203,6 +203,8 @@ class Application(Frame):
 
         print("bam.a files generated.\n")
 
+        self.largestfile()
+
         self.zeroscreator()
 
         # Import data from GenomAD Browser
@@ -233,14 +235,6 @@ class Application(Frame):
         source.close()
         target.close()
 
-        mergeFile = open('mergez.txt', 'r')
-        newMergez = open('newMergez.txt', 'w')
-
-        for line in mergeFile.readlines():
-            newMergez.write(line.replace('X', '23'))
-
-        mergeFile.close()
-
         print("Python analysis complete. mergez.txt file and namelist.txt file generated.\n")
 
     def isvalidregion(self, geneloc):
@@ -265,18 +259,6 @@ class Application(Frame):
         indexmid = fileData.find('-')
         indexend = fileData.find('\'') - 2
 
-        chrStart = fileData.find('c') + 3
-        chrEnd = indexbegin - 1
-
-        if(fileData[chrStart:chrEnd] == 'X'):
-            chrNum = 23
-        else:
-            chrNum = int(fileData[chrStart:chrEnd])
-
-        chr_file = open("chrnum.txt", "w")
-        chr_file.write("%d" % chrNum)
-        chr_file.close()
-
         refStart = int(fileData[indexbegin: indexmid])
         refEnd = int(fileData[indexmid + 1: indexend])
 
@@ -293,6 +275,23 @@ class Application(Frame):
 
         refSeqFile.close()
         target_file.close()
+
+        openFile = open("genome.txt", "r")
+        targetFile = open("genomenums.txt","w")
+
+        for line in openFile.readlines():
+            for char in line:
+                if(char == "A"):
+                    targetFile.write("1\n")
+                elif(char == "G"):
+                    targetFile.write("2\n")
+                elif(char == "C"):
+                    targetFile.write("3\n")
+                elif(char == "T"):
+                    targetFile.write("4\n")
+
+        openFile.close()
+        targetFile.close()
 
         return ((refStart + 10000 == inputStart) and (refEnd - 10000 == inputEnd))
 
@@ -396,13 +395,27 @@ class Application(Frame):
             line3 = line2.replace(" ", line2)
             subprocess.call(['cut -f 2,3,6-9,11-14,16-18 ' + line3 + '.out > ' + line3 + '.a'], shell=True)
 
+    def largestfile(self):
+        objects = os.listdir('.')
+
+        sofar = 0
+        global largestname
+        largestname = ""
+
+        for item in objects:
+            if item.endswith('.a'):
+                size = os.path.getsize(item)
+                if size > sofar:
+                    sofar = size
+                    largestname = item
+
     def zeroscreator(self):
         '''
         Populates the mergez.txt file initially with zeroes
         '''
-        # rowcount = str(subprocess.check_output(['wc -l < '+largestname], shell=True))
+        maxrowcount = str(int(subprocess.check_output(['wc -l < '+largestname], shell=True)))
 
-        subprocess.call(['python zeroscreator.py zeros.txt 70000 13'], shell=True)
+        subprocess.call(['python zeroscreator.py zeros.txt '+ maxrowcount + ' 13'], shell=True)
 
         for line in open('namelist.txt', 'r'):
             line2 = line.replace("\n", "")
