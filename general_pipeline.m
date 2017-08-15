@@ -695,7 +695,7 @@ for i=1:numFilterRows;
 
         % Store the maximum variant allele frequency in the appropriate
         % location
-        filterwithoutzeros(i, 26 * n) = max(varList(1, 1:4));
+        filterinterm(i, 26 * n) = max(varList(1, 1:4));
 
           
     end;
@@ -763,7 +763,7 @@ for i=1:numFilterRows;
     numSamplesGeq = 0;
 
     for n=1:s;
-        if(filterwithoutzeros(i, 26*n) > 0);
+        if(filterinterm(i, 26*n) > 0);
             numSamplesGeq = numSamplesGeq + 1;
         else
         end;
@@ -795,7 +795,7 @@ for i=1:numFilterRows;
     % Set the 9th, 10th, and so on columns to be the variant allele
     % frequency for each sample
     for m=1:s;
-        formatfilter(i, 8+m) = filterwithoutzeros(i, 26*m);
+        formatfilter(i, 8+m) = filterinterm(i, 26*m);
     end;
 
 end;
