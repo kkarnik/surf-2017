@@ -456,6 +456,10 @@ for i=1:workbRows;
         % Get the total number of reads (sum both forward and reverse)
         totReads = workNewRef(i, 8 + 26 * (n - 1)) + workNewRef(i, 18 + 26 * (n - 1));
 
+        if(totReads == 0);
+            totReads = 1;
+        end;
+        
         % Get the column value of the column corresponding to the reference
         % allele's variant frequency
         refColIndex = 20 + refVal + (26 * (n - 1));
@@ -635,6 +639,68 @@ end;
 filterwithoutzeros = filternewref(any(filternewref, 2), :);
 
 
+%% Section restorevarfreqs
+numFilterRows = size(filterwithoutzeros, 1);
+
+filterinterm = filterwithoutzeros;
+
+for i=1:numFilterRows;  
+    % Get the value in the reference genome
+    refVal = filterwithoutzeros(i, end - s - 2);
+    
+    for n=1:s;
+               
+        % Get the total number of reads (sum both forward and reverse)
+        totReads = filterwithoutzeros(i, 8 + 26 * (n - 1)) + filterwithoutzeros(i, 18 + 26 * (n - 1));
+
+        if(totReads == 0);
+            totReads = 1;
+        end;
+        
+        % Get the column value of the column corresponding to the reference
+        % allele's variant frequency
+        refColIndex = 20 + refVal + (26 * (n - 1));
+              
+        % Initialize the total number of variants
+        varList = zeros(1, 5);
+        
+        for j=1:5;
+            numVarReads = 0;
+
+            % Get the column value of where we are actually storing the
+            % variant frequency
+            actualUpdateCol = 20 + j + (26 * (n - 1));
+
+            % Only consider those columns that do not represent the
+            % reference genome allele
+            if(actualUpdateCol ~= refColIndex);
+                % Get the total number of variants for that specific letter
+                % (A, G, C, T, or indel)
+                
+                % Only consider value if there actually was a read at all
+                % in each direction
+                if(j ~= 5);
+                    numVarReads = filterwithoutzeros(i, j + 2 + (26 * (n - 1))) + filterwithoutzeros(i, j + 12 + (26 * (n - 1)));
+                else
+                    numVarReads = filterwithoutzeros(i, j + 2 + (26 * (n - 1)));
+                end;
+                
+                filterinterm(i, actualUpdateCol) = numVarReads / totReads;
+
+                % Update the running sum of the variant frequencies for
+                % the current nt
+                varList(1, j) = numVarReads / totReads;
+            end;
+        end;
+
+        % Store the maximum variant allele frequency in the appropriate
+        % location
+        filterwithoutzeros(i, 26 * n) = max(varList(1, 1:4));
+
+          
+    end;
+end;
+
 %% Section import Genome AD refnt and variant info
 genomeADalts = dlmread('reformatgenomeAD.txt');
 numLetters = size(genomeADalts, 1);
@@ -661,8 +727,6 @@ mergedGenomeData = [genomeADposns genomeADalts];
 % 9) Variant AF for Sample 1
 % 10) "          for Sample 2
 % ... and so on for each of the samples
-
-numFilterRows = size(filterwithoutzeros, 1);
 
 % First column is the chromosome numbers
 formatfilter = zeros(numFilterRows, 8 + s);
@@ -711,24 +775,21 @@ for i=1:numFilterRows;
 
     % Set the 8th column to be the percent of variant allele in human
     % population
-    [row, col] = find(genomeADfreqs == formatfilter(i, 2));
 
     [rowAD, colAD] = find(mergedGenomeData == formatfilter(i, 2));
 
     % Compare to see whether the variant matches the GenomAD database
     % variant changes, and if not, then don't display that value
-    if(~isempty(row) && ~isempty(col));
-        displayFlag = 0;
-        for index=1:size(rowAD, 1);
-            if(mergedGenomeData(rowAD(index, 1), 2) == formatfilter(i, 6));
-                displayFlag = 1;
-            end;
+    displayFlag = 0;
+    for index=1:size(rowAD, 1);
+        if(mergedGenomeData(rowAD(index, 1), 2) == formatfilter(i, 6));
+            displayFlag = 1;
         end;
+    end;
 
 
-        if(displayFlag == 1);
-            formatfilter(i, 8) = genomeADfreqs(row(end, 1), 1);
-        end;
+    if(displayFlag == 1);
+        formatfilter(i, 8) = genomeADfreqs(rowAD(end, 1), 1);
     end;
 
     % Set the 9th, 10th, and so on columns to be the variant allele
