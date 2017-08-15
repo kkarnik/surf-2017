@@ -643,6 +643,67 @@ end;
 % Remove rows with zeros from the end of the table
 filterwithoutzeros = filternewref(any(filternewref, 2), :);
 
+%% Section restorevarfreqs
+numFilterRows = size(filterwithoutzeros, 1);
+
+filterinterm = filterwithoutzeros;
+
+for i=1:numFilterRows;  
+    % Get the value in the reference genome
+    refVal = filterwithoutzeros(i, end - s - 2);
+    
+    for n=1:s;
+               
+        % Get the total number of reads (sum both forward and reverse)
+        totReads = filterwithoutzeros(i, 8 + 26 * (n - 1)) + filterwithoutzeros(i, 18 + 26 * (n - 1));
+
+        if(totReads == 0);
+            totReads = 1;
+        end;
+        
+        % Get the column value of the column corresponding to the reference
+        % allele's variant frequency
+        refColIndex = 20 + refVal + (26 * (n - 1));
+              
+        % Initialize the total number of variants
+        varList = zeros(1, 5);
+        
+        for j=1:5;
+            numVarReads = 0;
+
+            % Get the column value of where we are actually storing the
+            % variant frequency
+            actualUpdateCol = 20 + j + (26 * (n - 1));
+
+            % Only consider those columns that do not represent the
+            % reference genome allele
+            if(actualUpdateCol ~= refColIndex);
+                % Get the total number of variants for that specific letter
+                % (A, G, C, T, or indel)
+                
+                % Only consider value if there actually was a read at all
+                % in each direction
+                if(j ~= 5);
+                    numVarReads = filterwithoutzeros(i, j + 2 + (26 * (n - 1))) + filterwithoutzeros(i, j + 12 + (26 * (n - 1)));
+                else
+                    numVarReads = filterwithoutzeros(i, j + 2 + (26 * (n - 1)));
+                end;
+                
+                filterinterm(i, actualUpdateCol) = numVarReads / totReads;
+
+                % Update the running sum of the variant frequencies for
+                % the current nt
+                varList(1, j) = numVarReads / totReads;
+            end;
+        end;
+
+        % Store the maximum variant allele frequency in the appropriate
+        % location
+        filterwithoutzeros(i, 26 * n) = max(varList(1, 1:4));
+
+          
+    end;
+end;
 
 %% Section import Genome AD refnt and variant info
 genomeADalts = dlmread('reformatgenomeAD.txt');
