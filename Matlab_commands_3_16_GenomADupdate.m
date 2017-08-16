@@ -1073,9 +1073,18 @@ for i=1:workbRows;
             % the indels in the two reads (forward and reverse)
             workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
             %workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
-            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / ((workNewRefWithVals(i, 8 + (26 * (m - 1)))) + (workNewRefWithVals(i, 18 + (26 * (m - 1)))));
+            totalReads = ((workNewRefWithVals(i, 8 + (26 * (m - 1)))) + (workNewRefWithVals(i, 18 + (26 * (m - 1)))));
+            
+            if(totalReads == 0);
+                totalReads = 1;
+            end;            
+            
+            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / totalReads;
         end;
     end;
+    
+    
+    
 end;
 
 %% Section filterIndels
