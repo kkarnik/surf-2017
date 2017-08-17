@@ -44,7 +44,7 @@ end;
 %}
 
 initIndex = dlmread('initindex.txt');
-endIndex = dlmread('endIndex.txt');
+endIndex = dlmread('endindex.txt');
 
 % TXNIP chr1:145438462-145442628
 seqLength = endIndex - initIndex + 1;
@@ -457,7 +457,9 @@ for i=1:workbRows;
         totReads = workNewRef(i, 8 + 26 * (n - 1)) + workNewRef(i, 18 + 26 * (n - 1));
 
         if(totReads == 0);
-            totReads = 1;
+            totReads = 2;
+            workNewRef(i, 8 + 26 * (n - 1)) = 1;
+            workNewRef(i, 18 + 26 * (n - 1)) = 1;
         end;
         
         % Get the column value of the column corresponding to the reference
@@ -1102,7 +1104,7 @@ workNewRefIndels = [workNewRefWithVals(:, 1) workNewRefWithVals(:, end-s-3:end-s
 for i=1:workbRows;
     filterFlag = 0;
     for n=1:s;
-        if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 && workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
+        if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 || workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
             filterFlag = 1;
         end;
     end;
@@ -1113,7 +1115,13 @@ for i=1:workbRows;
             % the indels in the two reads (forward and reverse)
             workNewRefIndels(i,3+m) = workNewRefWithVals(i, 7 + (26 * (m - 1)));
             %workNewRefIndels(i,3+m+s) = max((workNewRefWithVals(i, 7 + (26 * (m - 1)))/(workNewRefWithVals(i, 8 + (26 * (m - 1))))), (workNewRefWithVals(i, 17 + (26 * (m - 1)))/(workNewRefWithVals(i, 18 + (26 * (m - 1))))));
-            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / ((workNewRefWithVals(i, 8 + (26 * (m - 1)))) + (workNewRefWithVals(i, 18 + (26 * (m - 1)))));
+            totalReads = ((workNewRefWithVals(i, 8 + (26 * (m - 1)))) + (workNewRefWithVals(i, 18 + (26 * (m - 1)))));
+            
+            if(totalReads == 0);
+                totalReads = 1;
+            end;
+            
+            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / totalReads;
         end;
     end;
 end;
@@ -1126,7 +1134,7 @@ for i=1:workbRows;
     keepFlag = 0;
 
     for n=1:s;
-        if(workNewRefIndels(i, 3 + n) ~= 0 || workNewRefIndels(i, 3 + n + s) ~= 0);
+        if(workNewRefIndels(i, 3 + n) ~= 0 && workNewRefIndels(i, 3 + n + s) ~= 0);
             keepFlag = 1;
         end;
     end;
