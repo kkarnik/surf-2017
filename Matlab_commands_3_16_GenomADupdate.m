@@ -359,15 +359,16 @@ copyWorkb = [copyWorkb refSeqNew];
 row = row(1);
 col = col(1);
 
+%{
 for i=1:workbRows;
     copyWorkb(i, end) = refSeq(row, col+1);
     copyWorkb(i, end-1) = refSeq(row, col);
     row = row + 1;
 
 end;
+%}
 
 % If the gene is non-contiguous, then use this (which is slower):
-%{
 for i=1:workbRows;
     [row, col] = find(refSeq == copyWorkb(i, 2));
     if ~(isempty(row) && isempty(col));
@@ -376,7 +377,7 @@ for i=1:workbRows;
     else
     end;
 end;
-%}
+
 
 %% Section workNewRef
 % Use the reference human genome sequence in order to determine the number

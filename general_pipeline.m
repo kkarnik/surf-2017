@@ -679,8 +679,6 @@ for i=1:numFilterRows;
                 % Get the total number of variants for that specific letter
                 % (A, G, C, T, or indel)
                 
-                % Only consider value if there actually was a read at all
-                % in each direction
                 if(j ~= 5);
                     numVarReads = filterwithoutzeros(i, j + 2 + (26 * (n - 1))) + filterwithoutzeros(i, j + 12 + (26 * (n - 1)));
                 else
@@ -765,7 +763,7 @@ for i=1:numFilterRows;
     numSamplesGeq = 0;
 
     for n=1:s;
-        if(filterinterm(i, 26*n) > 0);
+        if(filterinterm(i, 26*n) > 0 && filterinterm(i, 8 + 26 * (n - 1)) + filterinterm(i, 18 + 26 * (n - 1)) >= minreadcount);
             numSamplesGeq = numSamplesGeq + 1;
         else
         end;
