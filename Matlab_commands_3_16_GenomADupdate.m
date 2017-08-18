@@ -369,6 +369,7 @@ end;
 %}
 
 % If the gene is non-contiguous, then use this (which is slower):
+
 for i=1:workbRows;
     [row, col] = find(refSeq == copyWorkb(i, 2));
     if ~(isempty(row) && isempty(col));
@@ -768,7 +769,7 @@ for i=1:numFilterRows;
     numSamplesGeq = 0;
 
     for n=1:s;
-        if(filterinterm(i, 26*n) > 0);
+        if(filterinterm(i, 26*n) > 0 && filterinterm(i, 8 + 26 * (n - 1)) + filterinterm(i, 18 + 26 * (n - 1)) >= minreadcount);
             numSamplesGeq = numSamplesGeq + 1;
         else
         end;
@@ -1050,11 +1051,13 @@ for i=1:size(varCodons, 1);
     end;
 end;
 
+snvdata = [formatfilteraa filterwithoutzeros(:, end-s-1:end-2)];
+
 %% Section exportformatfilter
 % Here, we export the data in the formatfilter table to an excel document
 
-excelfile = 'aafilterdata.csv';
-dlmwrite(excelfile, formatfilteraa, 'precision', 9);
+excelfile = 'snvdata.csv';
+dlmwrite(excelfile, snvdata, 'precision', 9);
 
 %% Section workNewRefIndels
 
@@ -1201,7 +1204,7 @@ excelfile2 = 'formatfilterindels.csv';
 dlmwrite(excelfile2, indelsPolyA, 'precision', 9);
 
 %%%%%%%%%%%%%%%%%%%%%
-
+%{
 %% Section binList
 % Creates list of fixed-length bins in TSC1/TSC2,
 % Columns of binList are as follows:
@@ -1341,7 +1344,7 @@ end;
 
 excelfile3 = 'readcountdata.csv';
 dlmwrite(excelfile3, binList, 'precision', 9);
-
+%}
 %%%%%%%%%%%%%%%%%%%%%
 
 %% Section workc

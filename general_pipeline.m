@@ -1089,11 +1089,13 @@ for i=1:size(varCodons, 1);
     end;
 end;
 
+snvdata = [formatfilteraa filterwithoutzeros(:, end-s-1:end-2)];
+
 %% Section exportformatfilter
 % Here, we export the data in the formatfilter table to an excel document
 
-excelfile = 'aafilterdata.csv';
-dlmwrite(excelfile, formatfilteraa, 'precision', 9);
+excelfile = 'snvdata.csv';
+dlmwrite(excelfile, snvdata, 'precision', 9);
 
 %% Section workNewRefIndels
 
