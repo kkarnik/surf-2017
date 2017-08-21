@@ -233,7 +233,7 @@ mergezb=workaa;
 % for i=1:hh;
 % for j=1:62;
 % if ((workaa(i,1)==exons(j,1))&&(workaa(i,2)>(exons(j,2)-25))&&(workaa(i,2)<(exons(j,3)+25)));
-% 	for k=1:s*11;
+%   for k=1:s*11;
 %        mergezb(h,k)=workaa(i,k);
 %      end;
 %      h=h+1;
@@ -1104,7 +1104,7 @@ workNewRefIndels = [workNewRefWithVals(:, 1) workNewRefWithVals(:, end-s-3:end-s
 for i=1:workbRows;
     filterFlag = 0;
     for n=1:s;
-        if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 || workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
+        if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 && workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
             filterFlag = 1;
         end;
     end;
@@ -1121,7 +1121,7 @@ for i=1:workbRows;
                 totalReads = 1;
             end;
             
-            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1))) + (workNewRefWithVals(i, 17 + (26 * (m - 1))))) / totalReads;
+            workNewRefIndels(i, 3+m+s) = (workNewRefWithVals(i, 7 + (26 * (m - 1)))) / totalReads;
         end;
     end;
 end;
@@ -1134,8 +1134,9 @@ for i=1:workbRows;
     keepFlag = 0;
 
     for n=1:s;
-        if(workNewRefIndels(i, 3 + n) ~= 0 && workNewRefIndels(i, 3 + n + s) ~= 0);
+        if(workNewRefIndels(i, 3 + n) >= 2 && workNewRefIndels(i, 3 + n + s) >= 2 && ((workNewRefWithVals(i, 8 + (26 * (n - 1)))) + (workNewRefWithVals(i, 18 + (26 * (n - 1)))) >= minreadcount));
             keepFlag = 1;
+            break;
         end;
     end;
 
