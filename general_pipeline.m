@@ -1106,6 +1106,7 @@ for i=1:workbRows;
     for n=1:s;
         if(workNewRefWithVals(i, 7 + (26 * (n - 1))) >= 2 && workNewRefWithVals(i, 25 + (26 * (n - 1))) >= minIndelFreq);
             filterFlag = 1;
+            break;
         end;
     end;
 
@@ -1134,7 +1135,7 @@ for i=1:workbRows;
     keepFlag = 0;
 
     for n=1:s;
-        if(workNewRefIndels(i, 3 + n) >= 2 && workNewRefIndels(i, 3 + n + s) >= 2 && ((workNewRefWithVals(i, 8 + (26 * (n - 1)))) + (workNewRefWithVals(i, 18 + (26 * (n - 1)))) >= minreadcount));
+        if(workNewRefIndels(i, 3 + n) >= 2 && workNewRefIndels(i, 3 + n + s) >= minIndelFreq && (((workNewRefWithVals(i, 8 + (26 * (n - 1)))) + (workNewRefWithVals(i, 18 + (26 * (n - 1))))) >= minreadcount));
             keepFlag = 1;
             break;
         end;
