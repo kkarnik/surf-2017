@@ -56,9 +56,7 @@ end;
 
 exon_coord_flush = dlmread('exonCoordData.txt');
 
-TSC1_exon_coord_flush = exon_coord_flush;
-TSC2_exon_coord_flush = exon_coord_flush;
-T1T2exonsflush = exon_coord_flush;
+exon_coord_flush = exon_coord_flush;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %FLCN chr17:17113000-17143000
@@ -233,7 +231,7 @@ mergezb=workaa;
 % for i=1:hh;
 % for j=1:62;
 % if ((workaa(i,1)==exons(j,1))&&(workaa(i,2)>(exons(j,2)-25))&&(workaa(i,2)<(exons(j,3)+25)));
-%   for k=1:s*11;
+% 	for k=1:s*11;
 %        mergezb(h,k)=workaa(i,k);
 %      end;
 %      h=h+1;
@@ -538,7 +536,7 @@ exonLookup = [workNewRef(:, 1:2) zeros(size(workNewRef, 1), 2)];
 
 for i=1:size(exonLookup, 1);
 
-    numExons = size(T1T2exonsflush, 1);
+    numExons = size(exon_coord_flush, 1);
 
     foundFlag = 0;
     rowNum = 0;
@@ -549,8 +547,8 @@ for i=1:size(exonLookup, 1);
         index = index + 1;
 
         % Make sure the chr numbers match up
-        if(exonLookup(i, 1) == T1T2exonsflush(index, 1));
-            if(exonLookup(i, 2) >= T1T2exonsflush(index, 3) && exonLookup(i, 2) <= T1T2exonsflush(index, 4));
+        if(exonLookup(i, 1) == exon_coord_flush(index, 1));
+            if(exonLookup(i, 2) >= exon_coord_flush(index, 3) && exonLookup(i, 2) <= exon_coord_flush(index, 4));
                 rowNum = index;
                 foundFlag = 1;
             end;
@@ -559,7 +557,7 @@ for i=1:size(exonLookup, 1);
 
     % Case when the nucleotide position is in an exonic region
     if(rowNum ~= 0);
-        exonLookup(i, 3) = T1T2exonsflush(rowNum, 2);
+        exonLookup(i, 3) = exon_coord_flush(rowNum, 2);
 
     % Case when the nucleotide position is not in an exonic region
     else
@@ -569,8 +567,8 @@ for i=1:size(exonLookup, 1);
 
         % Put all the distances in a table
         for j=1:numExons;
-            distanceVals(j, 1) = abs(T1T2exonsflush(j, 3) - exonLookup(i, 2));
-            distanceVals(j, 2) = abs(T1T2exonsflush(j, 4) - exonLookup(i, 2));
+            distanceVals(j, 1) = abs(exon_coord_flush(j, 3) - exonLookup(i, 2));
+            distanceVals(j, 2) = abs(exon_coord_flush(j, 4) - exonLookup(i, 2));
         end;
 
         % Find the absolute value of the distance from the nearest exon
@@ -578,10 +576,10 @@ for i=1:size(exonLookup, 1);
         [row, col] = find(distanceVals == minElement);
 
         % Get the actual distance from the nearest exon
-        distVal = T1T2exonsflush(row(1), col(1) + 2) - exonLookup(i, 2);
+        distVal = exon_coord_flush(row(1), col(1) + 2) - exonLookup(i, 2);
 
         % Closest exon
-        exonLookup(i, 3) = T1T2exonsflush(row(1), 2);
+        exonLookup(i, 3) = exon_coord_flush(row(1), 2);
 
         exonLookup(i, 4) = distVal;
     end;
@@ -849,9 +847,6 @@ end;
 
 nt_coding = transpose(codingNtVals);
 
-TSC1_nt_coding = nt_coding;
-TSC2_nt_coding = nt_coding;
-
 %% Section cdnaLookup
 % Here we build the first part of the lookup table for the cdna data
 
@@ -880,15 +875,15 @@ while(mod(exon_coord_flush(indexIntT2, 2), 1) ~= 0)
 end;
 
 if(caseTSC1 == 1);
-    numCdnaRows = TSC1_exon_coord_flush(indexIntT1,4) - TSC1_exon_coord_flush(indexIntT1,3) + TSC1_exon_coord_flush(indexIntT1,5);
+    numCdnaRows = exon_coord_flush(indexIntT1,4) - exon_coord_flush(indexIntT1,3) + exon_coord_flush(indexIntT1,5);
     cdnaLookup = zeros(numCdnaRows, 12);
-    exonData = TSC1_exon_coord_flush;
+    exonData = exon_coord_flush;
     cdnaIndex = numCdnaRows;
 
 elseif(caseTSC2 == 1);
-    numCdnaRows = TSC2_exon_coord_flush(indexIntT2,4) - TSC2_exon_coord_flush(indexIntT2,3) + TSC2_exon_coord_flush(indexIntT2,5);
+    numCdnaRows = exon_coord_flush(indexIntT2,4) - exon_coord_flush(indexIntT2,3) + exon_coord_flush(indexIntT2,5);
     cdnaLookup = zeros(numCdnaRows, 12);
-    exonData = TSC2_exon_coord_flush;
+    exonData = exon_coord_flush;
     cdnaIndex = 1;
 end;
 
@@ -902,10 +897,10 @@ for i=1:size(exonData, 1);
 
             if(caseTSC1 == 1);
                 % If TSC1, use this:
-                cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);
+                cdnaLookup(rowIndex, 3) = nt_coding(cdnaIndex, 1);
             elseif(caseTSC2 == 1);
                 % If TSC2, use this:
-                cdnaLookup(rowIndex, 3) = TSC2_nt_coding(cdnaIndex, 1);
+                cdnaLookup(rowIndex, 3) = nt_coding(cdnaIndex, 1);
             end;
 
             aaNum = ceil(cdnaIndex / 3);
@@ -1337,8 +1332,8 @@ for i=1:binListRows;
         end;
 
         for k=1:24;
-            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)) || (binList(i, 3) <= T1T2exonsflush(k, 3) && binList(i, 4) >= T1T2exonsflush(k, 4)));
-                binList(i, 5) = T1T2exonsflush(k, 2);
+            if((binList(i, 3) >= exon_coord_flush(k, 3) && binList(i, 3) <= exon_coord_flush(k, 4)) || (binList(i, 4) >= exon_coord_flush(k, 3) && binList(i, 4) <= exon_coord_flush(k, 4)) || (binList(i, 3) <= exon_coord_flush(k, 3) && binList(i, 4) >= exon_coord_flush(k, 4)));
+                binList(i, 5) = exon_coord_flush(k, 2);
                 break;
             end;
         end;
@@ -1368,8 +1363,8 @@ for i=1:binListRows;
         end;
 
         for k=25:67;
-            if((binList(i, 3) >= T1T2exonsflush(k, 3) && binList(i, 3) <= T1T2exonsflush(k, 4)) || (binList(i, 4) >= T1T2exonsflush(k, 3) && binList(i, 4) <= T1T2exonsflush(k, 4)) || (binList(i, 3) <= T1T2exonsflush(k, 3) && binList(i, 4) >= T1T2exonsflush(k, 4)));
-                binList(i, 5) = T1T2exonsflush(k, 2);
+            if((binList(i, 3) >= exon_coord_flush(k, 3) && binList(i, 3) <= exon_coord_flush(k, 4)) || (binList(i, 4) >= exon_coord_flush(k, 3) && binList(i, 4) <= exon_coord_flush(k, 4)) || (binList(i, 3) <= exon_coord_flush(k, 3) && binList(i, 4) >= exon_coord_flush(k, 4)));
+                binList(i, 5) = exon_coord_flush(k, 2);
                 break;
             end;
         end;
@@ -1412,7 +1407,7 @@ for i=1:h;
 end;
 %% Section T1T2exons
 %bring in exon coordinates for calculation of read counts per exon
-%!!!!!use new precise exon file!!  T1T2exonsflush.txt
+%!!!!!use new precise exon file!!  exon_coord_flush.txt
 %columns are chr exon 1st-nt last-nt
 %Use file import
 
@@ -1423,8 +1418,8 @@ end;
 workca=zeros(size(workc,1),s*20);
 k=0;
 for i=1:size(workc,1);
-    for m=1:size(T1T2exonsflush,1);
-        if (workc(i,2)>=T1T2exonsflush(m,3))&&(workc(i,2)<=T1T2exonsflush(m,4));
+    for m=1:size(exon_coord_flush,1);
+        if (workc(i,2)>=exon_coord_flush(m,3))&&(workc(i,2)<=exon_coord_flush(m,4));
             k=k+1;
             for h=1:s*20;
                 workca(k,h)=workc(i,h);
@@ -1447,13 +1442,13 @@ end;
 %k = # lines in workca
 %now sum up read counts at each position for each exon
 %modification here which works
-T1T2readcount=zeros(size(T1T2exonsflush,1),4+s);
-for m=1:size(T1T2exonsflush,1);
+T1T2readcount=zeros(size(exon_coord_flush,1),4+s);
+for m=1:size(exon_coord_flush,1);
     for h=1:4;
-        T1T2readcount(m,h)=T1T2exonsflush(m,h);
+        T1T2readcount(m,h)=exon_coord_flush(m,h);
     end;
     for i=1:k;
-        if (workca(i,2)>=T1T2exonsflush(m,3))&&(workca(i,2)<=T1T2exonsflush(m,4));
+        if (workca(i,2)>=exon_coord_flush(m,3))&&(workca(i,2)<=exon_coord_flush(m,4));
             for h=1:s;
                 T1T2readcount(m,h+4)=T1T2readcount(m,h+4)+temp(i,h*2+1)+temp(i,h*2+2);
             end;
@@ -1463,9 +1458,9 @@ for m=1:size(T1T2exonsflush,1);
 end;
 
 %now divide by exon size to get average read count per nt
-for m=1:size(T1T2exonsflush,1);
+for m=1:size(exon_coord_flush,1);
     for h=5:(s+4);
-        T1T2readcount(m,h)=T1T2readcount(m,h)/(T1T2exonsflush(m,4)-T1T2exonsflush(m,3));
+        T1T2readcount(m,h)=T1T2readcount(m,h)/(exon_coord_flush(m,4)-exon_coord_flush(m,3));
     end;
 end;
 
@@ -1750,30 +1745,30 @@ for i=1:j;
         workgc(i,m)=workgb(i,m-6);
     end;
 end;
-%!!!!!!!!! Import TSC1_exon_coord_flush.txt and TSC2_exon_coord_flush.txt
-%import nt_aa_transl.txt, TSC2_nt_coding.txt, TSC1_nt_coding.txt
+%!!!!!!!!! Import exon_coord_flush.txt and exon_coord_flush.txt
+%import nt_aa_transl.txt, nt_coding.txt, nt_coding.txt
 
 % TSC1 case
 for i=1:j;
     if workgc(i,1)==9;
         flag=0;
-        for m=1:size(TSC1_exon_coord_flush,1);
-            if (workgc(i,2)>=TSC1_exon_coord_flush(m,3))&&(workgc(i,2)<=TSC1_exon_coord_flush(m,4));
+        for m=1:size(exon_coord_flush,1);
+            if (workgc(i,2)>=exon_coord_flush(m,3))&&(workgc(i,2)<=exon_coord_flush(m,4));
                 flag=1; % Flag since this nt is in an exonic region
-                workgc(i,8)=TSC1_exon_coord_flush(m,2);
+                workgc(i,8)=exon_coord_flush(m,2);
                 if (m>1&&m<23);
-                    workgc(i,10)=TSC1_exon_coord_flush(m,5)+TSC1_exon_coord_flush(m,4)-workgc(i,2);
+                    workgc(i,10)=exon_coord_flush(m,5)+exon_coord_flush(m,4)-workgc(i,2);
                     workgc(i,11)=(workgc(i,10)+2-rem(workgc(i,10)+2,3))/3;
-                    tnt1=TSC1_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3));
-                    tnt2=TSC1_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+1);
-                    tnt3=TSC1_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+2);
+                    tnt1=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3));
+                    tnt2=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+1);
+                    tnt3=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+2);
                     for jj=1:size(nt_aa_transl,1);
                         if (tnt1==nt_aa_transl(jj,1))&&(tnt2==nt_aa_transl(jj,2))&&(tnt3==nt_aa_transl(jj,3));
                             workgc(i,12)=nt_aa_transl(jj,4);
                         else
                         end;
                     end;
-                    nttemp=TSC1_nt_coding(workgc(i,10));
+                    nttemp=nt_coding(workgc(i,10));
                     % this is special for TSC1, since it is in anti-sense
                     % orientation
                     nttemp2=5-nttemp;
@@ -1826,11 +1821,11 @@ for i=1:j;
         if flag==0;
             e3=0;
             e5=0;
-            for m=1:(size(TSC1_exon_coord_flush,1)-1);
-                if (workgc(i,2)>TSC1_exon_coord_flush(m,4))&&(workgc(i,2)<TSC1_exon_coord_flush(m+1,3));
-                    e5=TSC1_exon_coord_flush(m,4)-workgc(i,2);
-                    e3=TSC1_exon_coord_flush(m+1,3)-workgc(i,2);
-                    workgc(i,8)=TSC1_exon_coord_flush(m+1,2);
+            for m=1:(size(exon_coord_flush,1)-1);
+                if (workgc(i,2)>exon_coord_flush(m,4))&&(workgc(i,2)<exon_coord_flush(m+1,3));
+                    e5=exon_coord_flush(m,4)-workgc(i,2);
+                    e3=exon_coord_flush(m+1,3)-workgc(i,2);
+                    workgc(i,8)=exon_coord_flush(m+1,2);
                 else
                 end;
             end;
@@ -1852,23 +1847,23 @@ end;
 for i=1:j;
     if workgc(i,1)==16;
         flag=0;
-        for m=1:size(TSC2_exon_coord_flush,1);
-            if (workgc(i,2)>=TSC2_exon_coord_flush(m,3))&&(workgc(i,2)<=TSC2_exon_coord_flush(m,4));
+        for m=1:size(exon_coord_flush,1);
+            if (workgc(i,2)>=exon_coord_flush(m,3))&&(workgc(i,2)<=exon_coord_flush(m,4));
                 flag=1;
-                workgc(i,8)=TSC2_exon_coord_flush(m,2);
+                workgc(i,8)=exon_coord_flush(m,2);
                 if (m>1&&m<43);
-                    workgc(i,10)=TSC2_exon_coord_flush(m,5)-TSC2_exon_coord_flush(m,3)+workgc(i,2);
+                    workgc(i,10)=exon_coord_flush(m,5)-exon_coord_flush(m,3)+workgc(i,2);
                     workgc(i,11)=(workgc(i,10)+2-rem(workgc(i,10)+2,3))/3;
-                    tnt1=TSC2_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3));
-                    tnt2=TSC2_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+1);
-                    tnt3=TSC2_nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+2);
+                    tnt1=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3));
+                    tnt2=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+1);
+                    tnt3=nt_coding(workgc(i,10)-rem(workgc(i,10)-1,3)+2);
                     for jj=1:size(nt_aa_transl,1);
                         if (tnt1==nt_aa_transl(jj,1))&&(tnt2==nt_aa_transl(jj,2))&&(tnt3==nt_aa_transl(jj,3));
                             workgc(i,12)=nt_aa_transl(jj,4);
                         else
                         end;
                     end;
-                    nttemp=TSC2_nt_coding(workgc(i,10));
+                    nttemp=nt_coding(workgc(i,10));
                     if nttemp==rem(workgc(i,3),10);
                         ntmtn=workgc(i,3)/10-(rem(workgc(i,3),10)/10);
                     else
@@ -1897,11 +1892,11 @@ for i=1:j;
         if flag==0;
             e3=0;
             e5=0;
-            for m=1:(size(TSC2_exon_coord_flush,1)-1);
-                if (workgc(i,2)>TSC2_exon_coord_flush(m,4))&&(workgc(i,2)<TSC2_exon_coord_flush(m+1,3));
-                    e3=workgc(i,2)-TSC2_exon_coord_flush(m,4);
-                    e5=workgc(i,2)-TSC2_exon_coord_flush(m+1,3);
-                    workgc(i,8)=TSC2_exon_coord_flush(m,2);
+            for m=1:(size(exon_coord_flush,1)-1);
+                if (workgc(i,2)>exon_coord_flush(m,4))&&(workgc(i,2)<exon_coord_flush(m+1,3));
+                    e3=workgc(i,2)-exon_coord_flush(m,4);
+                    e5=workgc(i,2)-exon_coord_flush(m+1,3);
+                    workgc(i,8)=exon_coord_flush(m,2);
                 else
                 end;
             end;
@@ -2028,21 +2023,21 @@ end;
 for i=1:k;
     if delep(i,1)==9;
         flag=0;
-        for m=1:size(TSC1_exon_coord_flush,1);
-            if (delep(i,2)>=TSC1_exon_coord_flush(m,3))&&(delep(i,2)<=TSC1_exon_coord_flush(m,4));
+        for m=1:size(exon_coord_flush,1);
+            if (delep(i,2)>=exon_coord_flush(m,3))&&(delep(i,2)<=exon_coord_flush(m,4));
                 flag=1;
-                delep(i,6)=TSC1_exon_coord_flush(m,2);
+                delep(i,6)=exon_coord_flush(m,2);
             else
             end;
         end;
         if flag==0;
             e3=0;
             e5=0;
-            for m=1:(size(TSC1_exon_coord_flush,1)-1);
-                if (delep(i,2)>TSC1_exon_coord_flush(m,4))&&(delep(i,2)<TSC1_exon_coord_flush(m+1,3));
-                    e5=TSC1_exon_coord_flush(m,4)-delep(i,2);
-                    e3=TSC1_exon_coord_flush(m+1,3)-delep(i,2);
-                    delep(i,6)=TSC1_exon_coord_flush(m+1,2);
+            for m=1:(size(exon_coord_flush,1)-1);
+                if (delep(i,2)>exon_coord_flush(m,4))&&(delep(i,2)<exon_coord_flush(m+1,3));
+                    e5=exon_coord_flush(m,4)-delep(i,2);
+                    e3=exon_coord_flush(m+1,3)-delep(i,2);
+                    delep(i,6)=exon_coord_flush(m+1,2);
                 else
                 end;
             end;
@@ -2062,21 +2057,21 @@ end;
 for i=1:k;
     if delep(i,1)==16;
         flag=0;
-        for m=1:size(TSC2_exon_coord_flush,1);
-            if (delep(i,2)>=TSC2_exon_coord_flush(m,3))&&(delep(i,2)<=TSC2_exon_coord_flush(m,4));
+        for m=1:size(exon_coord_flush,1);
+            if (delep(i,2)>=exon_coord_flush(m,3))&&(delep(i,2)<=exon_coord_flush(m,4));
                 flag=1;
-                delep(i,6)=TSC2_exon_coord_flush(m,2);
+                delep(i,6)=exon_coord_flush(m,2);
             else
             end;
         end;
         if flag==0;
             e3=0;
             e5=0;
-            for m=1:(size(TSC2_exon_coord_flush,1)-1);
-                if (delep(i,2)>TSC2_exon_coord_flush(m,4))&&(delep(i,2)<TSC2_exon_coord_flush(m+1,3));
-                    e3=delep(i,2)-TSC2_exon_coord_flush(m,4);
-                    e5=delep(i,2)-TSC2_exon_coord_flush(m+1,3);
-                    delep(i,6)=TSC2_exon_coord_flush(m,2);
+            for m=1:(size(exon_coord_flush,1)-1);
+                if (delep(i,2)>exon_coord_flush(m,4))&&(delep(i,2)<exon_coord_flush(m+1,3));
+                    e3=delep(i,2)-exon_coord_flush(m,4);
+                    e5=delep(i,2)-exon_coord_flush(m+1,3);
+                    delep(i,6)=exon_coord_flush(m,2);
                 else
                 end;
             end;
