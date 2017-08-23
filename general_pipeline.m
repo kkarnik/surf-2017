@@ -56,8 +56,6 @@ end;
 
 exon_coord_flush = dlmread('exonCoordData.txt');
 
-exon_coord_flush = exon_coord_flush;
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % %FLCN chr17:17113000-17143000
 % refnt=zeros(30000,2);
@@ -859,9 +857,6 @@ nt_coding = transpose(codingNtVals);
 % 6) codon with C substituted at the index
 % 7) codon with T substituted at the index
 
-% Set to 1 if we are doing this analysis for TSC2
-%caseTSC2 = 0;
-
 indexIntT1 = 1;
 
 while(mod(exon_coord_flush(indexIntT1, 2), 1) ~= 0)
@@ -920,9 +915,6 @@ for i=1:size(exonData, 1);
     end;
 end;
 
-% FOR TSC2, do this:
-% for i=1:size(cdnaLookup, 1);
-
 loopStart = 0;
 loopStep = 0;
 loopEnd = 0;
@@ -943,7 +935,6 @@ end;
 for i=loopStart:loopStep:loopEnd;
     codonInd = mod(i, 3);
 
-    % For TSC2, do codonInd == 1, for TSC1 do codonInd == 0
     if(codonInd == checkInd);
 
         if(caseTSC1 == 1);
@@ -957,7 +948,6 @@ for i=loopStart:loopStep:loopEnd;
             thirdNTval = num2str(cdnaLookup(i + 2, 3));
         end;
 
-        % For TSC2, do i, i+1, i+2 rather than -
     end;
 
     codonStr = strcat(firstNTval, secondNTval, thirdNTval);
@@ -974,8 +964,6 @@ for i=loopStart:loopStep:loopEnd;
             end;
 
         elseif(caseTSC2 == 1);
-
-            %USE FOR TSC2 CASE:
 
             if(codonInd == 0);
                 codonInd = 3;
