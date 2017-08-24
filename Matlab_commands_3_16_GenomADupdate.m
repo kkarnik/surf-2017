@@ -541,8 +541,6 @@ for i=1:size(exonLookup, 1);
     % Case when the nucleotide position is not in an exonic region
     else
         if(caseTSC1 == 1);
-            % THIS IS FOR SPECIFICALLY THE TSC1 GENE, NEED TO CHANGE THIS FOR
-            % TSC2 GENE CASE *************************************************
             distanceVals = zeros(numT1Exons, 2);
 
             % Put all the distances in a table
@@ -563,8 +561,6 @@ for i=1:size(exonLookup, 1);
 
             exonLookup(i, 4) = distVal;
         elseif(caseTSC2 == 1);
-            % TSC2 CASE, copy and paste this when using TSC2:
-
             distanceVals = zeros(numT2Exons, 2);
 
             % Put all the distances in a table
@@ -863,10 +859,8 @@ for i=1:size(exonData, 1);
             cdnaLookup(rowIndex, 2) = val;
 
             if(caseTSC1 == 1);
-                % If TSC1, use this:
                 cdnaLookup(rowIndex, 3) = TSC1_nt_coding(cdnaIndex, 1);
             elseif(caseTSC2 == 1);
-                % If TSC2, use this:
                 cdnaLookup(rowIndex, 3) = TSC2_nt_coding(cdnaIndex, 1);
             end;
 
@@ -1222,27 +1216,22 @@ binListRows = ceil((2138713-2097990)/binSize) + ceil((135820020-135766735)/binSi
 binList = zeros(binListRows, 5+s);
 
 if(caseTSC1 == 1);
-    % For TSC1, use this:
     binInd = 1;
     index = 135766735;
     endInd = 135820020;
 
 elseif(caseTSC2 == 1);
-    % For TSC2, use this:
     binInd = ceil((135820020-135766735)/binSize) + 1;
     index = 2097990;
     endInd = 2138713;
 end;
 
-% For TSC1, use this:
 while(index < endInd);
 
     if(caseTSC1 == 1);
-        % For TSC1, use this:
         binList(binInd, 1) = 9;
 
     elseif(caseTSC2 == 1);
-        % For TSC2, use this:
         binList(binInd, 1) = 16;
     end;
 
@@ -2187,3 +2176,5 @@ end;
 % Uncomment the next line when running with the "Run matlab script" button
 % in the Python tkinter widget
 %quit()
+
+disp('Matlab Analysis Complete. Results stored in formatfilterindels.csv and snvdata.csv')
