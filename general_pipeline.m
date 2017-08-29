@@ -1017,11 +1017,11 @@ for i=1:size(varCodons, 1);
 
         varCodons(i, 5) = cdnaLookup(row, 4);
 
-        colVal = 8 + varCodons(i, 1);
+        colVal = 8 + cdnaLookup(row, 3);
         varCodons(i, 6) = cdnaLookup(row, colVal);
 
         if(length(num2str(varCodons(i, 2))) == 1);
-            mutCol = 8 + varCodons(i, 2);
+            mutCol = 8 + (5 - varCodons(i, 2));
             varCodons(i, 7) = cdnaLookup(row, mutCol);
         end;
     end;
