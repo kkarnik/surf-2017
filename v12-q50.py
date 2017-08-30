@@ -4,7 +4,9 @@ import sys
 openfile = file(sys.argv[1])
 newfile = open(sys.argv[2], 'w')
 
-quality_level = 50  # EDIT THIS FOR QUALITY LEVEL DESIRED
+qualScoreFile = open("minQualScore.txt", "r")
+
+quality_level = int(qualScoreFile.read())  # EDIT THIS FOR QUALITY LEVEL DESIRED
 
 num_list = "0123456789"
 

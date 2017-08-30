@@ -124,6 +124,12 @@ class Application(Frame):
         E4 = Entry(self, bd=5)
         E4.pack()
 
+        L5 = Label(self, text="Minimum Quality Score:")
+        L5.pack()
+        global E5
+        E5 = Entry(self, bd=5)
+        E5.pack()
+
         self.start = Button(self, text="Begin Analysis", command=self.combinefunctions)
         self.start.pack()
 
@@ -164,6 +170,16 @@ class Application(Frame):
         minIndelFreqFile.write("%0.5f" % float(minIndelFreq))
         minIndelFreqFile.close()
 
+    def savequalscore(self):
+        '''
+        Saves the input value for the minimum quality score into a text file, which will be imported as a variable
+        in matlab.
+        '''
+        minqualscore = E5.get()
+        minqualscoreFile = open("minQualScore.txt", "w")
+        minqualscoreFile.write("%d" % int(minqualscore))
+        minqualscoreFile.close()
+
     def runmatlab(self):
         '''
         Runs Matlab_commands_3_16_GenomADupdate.m script
@@ -182,6 +198,7 @@ class Application(Frame):
         self.saveminfreq()
         self.saveminreadcount()
         self.saveindelfreq()
+        self.savequalscore()
 
         self.namereader()
 
@@ -203,7 +220,7 @@ class Application(Frame):
 
         print("bam.a files generated.\n")
 
-        self.largestfile()
+        #self.largestfile()
 
         self.zeroscreator()
 
@@ -235,6 +252,15 @@ class Application(Frame):
         source.close()
         target.close()
 
+        mergeFile = open('mergez.txt', 'r')
+        newMergez = open('newMergez.txt', 'w')
+
+        for line in mergeFile.readlines():
+            newMergez.write(line.replace('X', '23'))
+
+        mergeFile.close()
+        newMergez.close()
+
         print("Python analysis complete. mergez.txt file and namelist.txt file generated.\n")
 
     def isvalidregion(self, geneloc):
@@ -258,6 +284,18 @@ class Application(Frame):
         indexbegin = fileData.find(':') + 1
         indexmid = fileData.find('-')
         indexend = fileData.find('\'') - 2
+
+        chrStart = fileData.find('c') + 3
+        chrEnd = indexbegin - 1
+
+        if(fileData[chrStart:chrEnd] == 'X'):
+            chrNum = 23
+        else:
+            chrNum = int(fileData[chrStart:chrEnd])
+
+        chr_file = open("chrnum.txt", "w")
+        chr_file.write("%d" % chrNum)
+        chr_file.close()
 
         refStart = int(fileData[indexbegin: indexmid])
         refEnd = int(fileData[indexmid + 1: indexend])
@@ -413,9 +451,9 @@ class Application(Frame):
         '''
         Populates the mergez.txt file initially with zeroes
         '''
-        maxrowcount = str(int(subprocess.check_output(['wc -l < '+largestname], shell=True)))
+        #maxrowcount = str(int(subprocess.check_output(['wc -l < '+largestname], shell=True)))
 
-        subprocess.call(['python zeroscreator.py zeros.txt '+ maxrowcount + ' 13'], shell=True)
+        subprocess.call(['python zeroscreator.py zeros.txt 70000 13'], shell=True)
 
         for line in open('namelist.txt', 'r'):
             line2 = line.replace("\n", "")
@@ -428,7 +466,6 @@ class Application(Frame):
             line3 = line2.replace(" ", line2)
             filenames = filenames + line3 + '.b '
         subprocess.call(['python merger.py ' + filenames + '>>mergez.txt'], shell=True)
-
 
 root = Tk()
 app = Application(master=root)
