@@ -2215,3 +2215,5 @@ end;
 % Uncomment the next line when running with the "Run matlab script" button
 % in the Python tkinter widget
 %quit()
+
+disp('Matlab Analysis Complete. Results stored in formatfilterindels.csv and snvdata.csv')
