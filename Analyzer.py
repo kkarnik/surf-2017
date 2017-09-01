@@ -176,6 +176,10 @@ class Application(Frame):
         in matlab.
         '''
         minqualscore = E5.get()
+
+        if(minqualscore == ''):
+            minqualscore = "46";
+
         minqualscoreFile = open("minQualScore.txt", "w")
         minqualscoreFile.write("%d" % int(minqualscore))
         minqualscoreFile.close()
